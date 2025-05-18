@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'src': path.resolve(__dirname, './src'),
+      src: path.resolve(__dirname, './src'),
     },
   },
   server: {
@@ -19,7 +19,11 @@ export default defineConfig({
       '/api': {
         target: 'http://video-meme.fun/',
         changeOrigin: true,
-      }
-    }
-  }
-})
+      },
+      '/video': {
+        target: 'http://video-meme.fun/',
+        changeOrigin: true,
+      },
+    },
+  },
+});
