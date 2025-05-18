@@ -1,0 +1,59 @@
+.player {
+  position: relative;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #2e343a;
+  opacity: 0;
+
+  &>div {
+    display: flex;
+  }
+}
+
+.player_ready {
+  opacity: 1;
+}
+
+.player-actions-wrapper {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+}
+
+.player-actions {
+  width: 100%;
+  padding: 5px 25px;
+  user-select: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+
+.player-play {
+  display: inline-flex;
+}
+
+.player-progress-bar {
+  margin-bottom: 8px;
+}
+
+.player-volume {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.player-volume-icon {
+  display: inline-flex;
+}
+
+.player-volume-progress-bar {
+  width: 60px;
+}
