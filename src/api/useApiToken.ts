@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 import { useAppStore } from 'src/store';
 
 interface ResponseToken {
@@ -19,7 +19,10 @@ const useApiToken = (): string => {
     }
     sendRequestRef.current = true;
     async function fetchToken() {
-      const response = await axios.post<ResponseToken>('/api/v1/auth/get-token/', { login: 'getrand', password: '13kalmah13' });
+      const response = await axios.post<ResponseToken>('/api/v1/auth/get-token/', {
+        login: 'getrand',
+        password: '13kalmah13',
+      });
       dispatch({ type: 'token/set', payload: response.data.access_token });
     }
     fetchToken();
