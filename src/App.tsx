@@ -1,16 +1,21 @@
+import { FileForm } from 'src/pages/FileForm';
 import { Editor } from 'src/pages/Editor';
+import { getTrl } from 'src/lang/trls';
+import { useAppStore } from 'src/store';
+
 import 'src/App.less';
-import { getTrl } from "src/lang/trls";
 
 function App() {
+  const step = useAppStore((store) => store.state.step);
   return (
-    <div className='logo-and-editor'>
+    <div className="logo-and-editor">
       <div>
         <div className="logo">{getTrl('appTitle')}</div>
       </div>
-      <Editor />
+      {step === 'load-file' && <FileForm />}
+      {step === 'edit-file' && <Editor />}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
