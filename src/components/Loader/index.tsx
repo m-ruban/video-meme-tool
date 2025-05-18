@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-import { Loading } from "src/components/Icon/Loading";
+import { Loading } from 'src/components/Icon/Loading';
 
 import 'src/components/Loader/loader.less';
 
@@ -13,7 +13,7 @@ const Loader = () => {
     >
       <Loading />
     </motion.div>
-);
-}
+  );
+};
 
 export { Loader };
