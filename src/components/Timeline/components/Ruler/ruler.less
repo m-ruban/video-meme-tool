@@ -1,0 +1,45 @@
+.ruler {
+    display: flex;
+    position: relative;
+}
+
+.bar {
+    display: flex;
+    position: relative;
+    border-bottom: 2px solid #8898a5;
+    gap: 5px;
+    height: 30px;
+    align-items: flex-end;
+}
+
+.label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'Montserrat', serif;
+    font-weight: 600;
+    font-size: 10px;
+    line-height: 1;
+    color: #8898a5;
+    transform: translateX(-40%);
+}
+
+.tick {
+    width: 2px;
+    height: 10px;
+    background-color: #8898a5;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+
+    &.tall {
+        height: 15px;
+    }
+
+    &.tallest {
+        height: 20px;
+    }
+
+    &.last {
+        width: 0px;
+    }
+}
