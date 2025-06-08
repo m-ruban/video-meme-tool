@@ -19,6 +19,11 @@ export interface Meme {
   duration: number;
   /** full link to audio */
   audio: string;
+  /** full link to audio (mp3) */
+  audioMp3: string;
+  /** full link to waveform image */
+  waveform: string;
+  /** array of links to frames */
   frames: string[];
 }
 export type NullableMeme = Meme | null;
