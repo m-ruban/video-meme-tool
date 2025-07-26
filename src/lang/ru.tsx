@@ -12,7 +12,7 @@ const ru = {
   uploadTitle: 'Перетащите или выберите файл',
   uploadDescription: 'Размер файла - 5 МБ. Формат - MP4',
   uploadButton: 'Выберите файл',
-  uploadAlert: 'Загружая видеофайл, пользователь подтверждает наличие прав на его использование',
+  uploadAlert: '* Загружая видеофайл, пользователь подтверждает наличие прав на его использование',
   uploadFileSize: ({ size }: { size: string }) => <>Размер файла {size} МБ</>,
   uploadFileRestriction: 'Разрешены только .mp4 видеофайлы',
   uploadButtonCancel: 'Отмена',
