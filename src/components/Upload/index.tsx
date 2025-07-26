@@ -5,6 +5,7 @@ import { VideoFile } from 'src/components/Icon/VideoFile';
 import { Error } from 'src/components/Icon/Error';
 import { Button } from 'src/components/Button';
 import { Loader } from 'src/components/Loader';
+import { Typography } from 'src/components/Typography';
 import { fetcher } from 'src/api/fetcher';
 import { Meme, useAppStore } from 'src/store';
 import { getTrl } from 'src/lang/trls';
@@ -102,7 +103,7 @@ const Upload = () => {
           )}
         </div>
       </div>
-      <div className="upload-alert">{getTrl('uploadAlert')}</div>
+      <Typography>{getTrl('uploadAlert')}</Typography>
     </div>
   );
 };
