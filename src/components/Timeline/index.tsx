@@ -5,6 +5,8 @@ import { Playhead } from 'src/components/Timeline/components/Playhead';
 import { Ruler } from 'src/components/Timeline/components/Ruler';
 import { VideoTrack } from 'src/components/Timeline/components/VideoTrack';
 import { Waveform } from 'src/components/Timeline/components/Waveform';
+import { Typography } from 'src/components/Typography';
+import { getTrl } from 'src/lang/trls';
 
 import 'src/components/Timeline/timeline.less';
 
@@ -66,16 +68,21 @@ const Timeline = ({ meme }: TimelineProps) => {
   );
 
   return (
-    <div className="timeline-wrapper">
-      <div ref={timelineRef} className="timeline">
-        <div ref={timelineScrollableRef} className="timeline-scrollable" onClick={handleClick}>
-          <Ruler ref={rulerRef} duration={meme.duration} />
-          <VideoTrack frames={meme.frames} />
-          <Waveform path={meme.waveform} />
-          <Playhead rulerRef={rulerRef} />
+    <>
+      <div className="timeline-wrapper">
+        <div ref={timelineRef} className="timeline">
+          <div ref={timelineScrollableRef} className="timeline-scrollable" onClick={handleClick}>
+            <Ruler ref={rulerRef} duration={meme.duration} />
+            <VideoTrack frames={meme.frames} />
+            <Waveform path={meme.waveform} />
+            <Playhead rulerRef={rulerRef} />
+          </div>
         </div>
       </div>
-    </div>
+      <div className="timeline-advice">
+        <Typography>{getTrl('editAudioAdvice')}</Typography>
+      </div>
+    </>
   );
 };
 

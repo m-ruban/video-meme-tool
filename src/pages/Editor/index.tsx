@@ -12,7 +12,11 @@ const Editor = () => {
   return (
     <>
       <Player meme={meme} />
-      {videoLoaded && <Timeline meme={meme} />}
+      {videoLoaded && (
+        <>
+          <Timeline meme={meme} />
+        </>
+      )}
     </>
   );
 };
