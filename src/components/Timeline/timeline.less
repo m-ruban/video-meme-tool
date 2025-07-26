@@ -1,3 +1,5 @@
+@padding: 10px;
+
 .timeline-wrapper {
     margin-top: 30px;
     margin-left: auto;
@@ -7,13 +9,42 @@
 }
 
 .timeline {
+    position: relative;
     background-color: #2E343A;
-    padding: 10px;
+    padding: @padding;
     border-radius: 20px;
+
+    --shadow-left: 0;
+    --shadow-right: 0;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: @padding;
+        bottom: 0;
+        width: 15px;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        height: calc(100% - @padding * 2);
+        z-index: 1;
+    }
+
+    &::before {
+        left: @padding;
+        background: linear-gradient(to right, #2E343A, transparent);
+        opacity: var(--shadow-left);
+    }
+    
+    &::after {
+        right: @padding;
+        background: linear-gradient(to left, #2E343A, transparent);
+        opacity: var(--shadow-right);
+    }
 }
 
 .timeline-scrollable {
-    overflow: auto;
-    padding: 10px;
+    padding: @padding;
     position: relative;
+    overflow-x: auto;
 }
