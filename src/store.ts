@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import ReactPlayer from 'react-player';
 
 import { meme } from 'src/dummy';
 
@@ -35,14 +36,28 @@ type StepAction = { type: 'step/set'; payload: StepState };
 type VideoLoaded = boolean;
 type VideoLoadedAction = { type: 'meme-loaded/set'; payload: boolean };
 
+type PlayedPercent = number;
+type PlayedPercentAction = { type: 'played-percent/set'; payload: number };
+
+type PlayerInstance = ReactPlayer | null;
+type PlayerInstanceAction = { type: 'player-instance/set'; payload: PlayerInstance };
+
 type AppState = {
   token: TokenState;
   meme: NullableMeme;
   step: StepState;
   videoLoaded: VideoLoaded;
+  playedPercent: PlayedPercent;
+  playerInstance: PlayerInstance;
 };
 
-type AppAction = TokenAction | MemeAction | StepAction | VideoLoadedAction;
+type AppAction =
+  | TokenAction
+  | MemeAction
+  | StepAction
+  | VideoLoadedAction
+  | PlayedPercentAction
+  | PlayerInstanceAction;
 
 interface Store {
   state: AppState;
@@ -85,12 +100,32 @@ const videoLoadedReducer = (state: VideoLoaded, action: AppAction): VideoLoaded 
   }
 };
 
+const playedPercentReducer = (state: PlayedPercent, action: AppAction): PlayedPercent => {
+  switch (action.type) {
+    case 'played-percent/set':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
+const playerInstanceReducer = (state: PlayerInstance, action: AppAction): PlayerInstance => {
+  switch (action.type) {
+    case 'player-instance/set':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 export const useAppStore = create<Store>((set) => ({
   state: {
     token: '',
     meme: meme,
     step: 'edit-file',
     videoLoaded: false,
+    playedPercent: 0,
+    playerInstance: null,
   },
   dispatch: (action) =>
     set((store) => ({
@@ -99,6 +134,8 @@ export const useAppStore = create<Store>((set) => ({
         meme: memeReducer(store.state.meme, action),
         step: stepReducer(store.state.step, action),
         videoLoaded: videoLoadedReducer(store.state.videoLoaded, action),
+        playedPercent: playedPercentReducer(store.state.playedPercent, action),
+        playerInstance: playerInstanceReducer(store.state.playerInstance, action),
       },
     })),
 }));
