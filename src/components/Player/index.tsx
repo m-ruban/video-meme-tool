@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import classnames from 'classnames';
 import { Meme, useAppStore } from 'src/store';
@@ -12,16 +12,25 @@ interface PlayerProps {
   meme: Meme;
 }
 
+const roundToPercent = (value: number) => Math.round(value * 1000) / 10;
+
 const DEFAULT_VOLUME = 0.8;
 
 const Player = ({ meme }: PlayerProps) => {
   const dispatch = useAppStore((store) => store.dispatch);
   const videoLoaded = useAppStore((store) => store.state.videoLoaded);
+  const playedPercent = useAppStore((store) => store.state.playedPercent);
   const playerRef = useRef<ReactPlayer>(null);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
-  const [played, setPlayed] = useState(0);
   const togglePlay = useCallback(() => setPlaying((prev) => !prev), []);
+
+  useEffect(() => {
+    if (!playerRef.current) {
+      return;
+    }
+    dispatch({ type: 'player-instance/set', payload: playerRef.current });
+  }, [dispatch]);
 
   const handleVolumeChange = useCallback((value: number) => {
     setVolume(value);
@@ -29,12 +38,13 @@ const Player = ({ meme }: PlayerProps) => {
 
   const handleProgressChange = useCallback(
     (value: number) => {
-      const duration = meme.duration;
-      const newTime = duration * value;
-      playerRef.current?.seekTo(newTime);
-      setPlayed(Math.round(value * 100));
+      if (!playerRef.current) {
+        return;
+      }
+      dispatch({ type: 'played-percent/set', payload: roundToPercent(value) });
+      playerRef.current.seekTo(meme.duration * value, 'seconds');
     },
-    [meme]
+    [dispatch, meme]
   );
 
   return (
@@ -48,12 +58,12 @@ const Player = ({ meme }: PlayerProps) => {
         width=""
         height=""
         onProgress={({ played: newPlayed }) => {
-          setPlayed(Math.round(newPlayed * 100));
+          dispatch({ type: 'played-percent/set', payload: roundToPercent(newPlayed) });
         }}
         onReady={() => {
           dispatch({ type: 'meme-loaded/set', payload: true });
         }}
-        progressInterval={200}
+        progressInterval={100}
         onEnded={() => {
           togglePlay();
         }}
@@ -61,7 +71,7 @@ const Player = ({ meme }: PlayerProps) => {
       <div className="player-actions-wrapper">
         <div className="player-actions">
           <div className="player-progress-bar">
-            <ProgressBar value={played} onChange={handleProgressChange} />
+            <ProgressBar value={playedPercent} onChange={handleProgressChange} />
           </div>
           <div className="player-play" onClick={togglePlay}>
             <PlayPause playing={playing} />
