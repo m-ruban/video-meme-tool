@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, forwardRef } from 'react';
 import classnames from 'classnames';
 import 'src/components/Timeline/components/Ruler/ruler.less';
 
@@ -11,10 +11,10 @@ const range = (start: number, end: number) =>
 
 const ticks = range(0, 10);
 
-export const Ruler = ({ duration }: RulerProps) => {
+export const Ruler = forwardRef<HTMLDivElement, RulerProps>(({ duration }, ref) => {
   const bars = useMemo(() => range(0, Math.ceil(duration - 1)), [duration]);
   return (
-    <div className="ruler">
+    <div ref={ref} className="ruler">
       {bars.map((currentBar) => {
         return (
           <div key={currentBar} className="bar">
@@ -37,4 +37,4 @@ export const Ruler = ({ duration }: RulerProps) => {
       })}
     </div>
   );
-};
+});
