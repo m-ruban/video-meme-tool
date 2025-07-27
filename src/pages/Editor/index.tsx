@@ -1,6 +1,7 @@
 import { useAppStore } from 'src/store';
 import { Player } from 'src/components/Player';
 import { Timeline } from 'src/components/Timeline';
+import { SaveButton } from 'src/components/SaveButton';
 
 const Editor = () => {
   const meme = useAppStore((store) => store.state.meme);
@@ -15,6 +16,7 @@ const Editor = () => {
       {videoLoaded && (
         <>
           <Timeline meme={meme} />
+          <SaveButton />
         </>
       )}
     </>
