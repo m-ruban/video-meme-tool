@@ -1,4 +1,24 @@
 .waveform {
     display: flex;
-    // height: 50px;
+    position: relative;
+    user-select: none;
+}
+
+.waveform-selection-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    cursor: crosshair;
+    pointer-events: auto;
+}
+
+.waveform-selection-box {
+    position: absolute;
+    background-color: #8898a5;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.5;
+    height: 100%;
+    top: 0px;
 }
