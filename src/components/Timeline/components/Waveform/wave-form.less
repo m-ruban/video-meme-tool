@@ -11,14 +11,20 @@
     height: 100%;
     cursor: crosshair;
     pointer-events: auto;
+    z-index: 1;
 }
 
 .waveform-selection-box {
     position: absolute;
-    background-color: #8898a5;
-    pointer-events: none;
+    background-color: #8898a533;
     z-index: 2;
-    opacity: 0.5;
     height: 100%;
     top: 0px;
+}
+
+.waveform-selection-clear {
+    position: absolute;
+    right: 0;
+    top: 0;
+    cursor: pointer;
 }

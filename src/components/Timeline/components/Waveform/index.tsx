@@ -1,4 +1,5 @@
-import { useRef, useCallback, MouseEventHandler, useEffect } from 'react';
+import { useRef, useCallback, MouseEventHandler, useEffect, useState } from 'react';
+import { SmallCross } from 'src/components/Icon/SmallCross';
 import 'src/components/Timeline/components/Waveform/wave-form.less';
 
 interface WaveformProps {
@@ -10,13 +11,24 @@ interface Position {
   y: number;
 }
 
+const MIN_SELECTION = 25;
 const cancelEvent: MouseEventHandler<HTMLDivElement> = (event) => event.stopPropagation();
 
 export const Waveform = ({ path }: WaveformProps) => {
+  const [showClearControl, setShowClearControl] = useState(false);
   const selectionLayerRef = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<HTMLDivElement>(null);
   const startPosRef = useRef<Position | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+
+  const clearSelection = useCallback(() => {
+    if (!selectionRef.current) {
+      return;
+    }
+    selectionRef.current.style.left = `0px`;
+    selectionRef.current.style.width = `0px`;
+    setShowClearControl(false);
+  }, []);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!startPosRef.current || !imgRef.current || !selectionRef.current) {
@@ -32,18 +44,20 @@ export const Waveform = ({ path }: WaveformProps) => {
   }, []);
 
   const handleMouseUp = useCallback(() => {
+    if (!selectionRef.current) {
+      return;
+    }
+    console.log('handleMouseUp');
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
+    const rect = selectionRef.current.getBoundingClientRect();
     startPosRef.current = null;
-
-    setTimeout(() => {
-      if (!selectionRef.current) {
-        return;
-      }
-      selectionRef.current.style.left = `0px`;
-      selectionRef.current.style.width = `0px`;
-    }, 200);
-  }, [handleMouseMove]);
+    if (rect.width < MIN_SELECTION) {
+      clearSelection();
+      return;
+    }
+    setShowClearControl(true);
+  }, [handleMouseMove, clearSelection]);
 
   const handleMouseDown: MouseEventHandler<HTMLDivElement> = useCallback(
     (event) => {
@@ -59,6 +73,7 @@ export const Waveform = ({ path }: WaveformProps) => {
       selectionRef.current.style.width = `0px`;
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+      setShowClearControl(false);
     },
     [handleMouseMove, handleMouseUp]
   );
@@ -81,15 +96,25 @@ export const Waveform = ({ path }: WaveformProps) => {
   }, []);
 
   return (
-    <div className="waveform">
+    <div className="waveform" onClick={cancelEvent}>
       <img ref={imgRef} src={path} alt="Waveform" />
       <div
         ref={selectionLayerRef}
         className="waveform-selection-layer"
         onMouseDown={handleMouseDown}
-        onClick={cancelEvent}
       />
-      <div ref={selectionRef} className="waveform-selection-box" />
+      <div
+        ref={selectionRef}
+        className="waveform-selection-box"
+        onClick={cancelEvent}
+        onMouseDown={cancelEvent}
+      >
+        {showClearControl && (
+          <span className="waveform-selection-clear" onClick={clearSelection}>
+            <SmallCross />
+          </span>
+        )}
+      </div>
     </div>
   );
 };
