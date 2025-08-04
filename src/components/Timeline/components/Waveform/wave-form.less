@@ -28,3 +28,27 @@
     top: 0;
     cursor: pointer;
 }
+
+.waveform-phrase {
+    position: relative;
+    padding-right: 14px;
+}
+
+.waveform-phrase-actions {
+    position: absolute;
+    right: -12px;
+    top: -5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.waveform-phrase-action {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+    line-height: 0.5;
+
+    &:active {
+        transform: scale(0.8);
+    }
+}
