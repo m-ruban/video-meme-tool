@@ -42,6 +42,18 @@ type PlayedPercentAction = { type: 'played-percent/set'; payload: number };
 type PlayerInstance = ReactPlayer | null;
 type PlayerInstanceAction = { type: 'player-instance/set'; payload: PlayerInstance };
 
+export interface Phrase {
+  start: number;
+  duration: number;
+  link: string;
+  label: string;
+  left: number;
+  width: number;
+  right: number;
+}
+type PhraseAddAction = { type: 'phrase/add'; payload: Phrase };
+type PhraseDeleteAction = { type: 'phrase/delete'; payload: number };
+
 type AppState = {
   token: TokenState;
   meme: NullableMeme;
@@ -49,6 +61,7 @@ type AppState = {
   videoLoaded: VideoLoaded;
   playedPercent: PlayedPercent;
   playerInstance: PlayerInstance;
+  phrases: Phrase[];
 };
 
 type AppAction =
@@ -57,7 +70,9 @@ type AppAction =
   | StepAction
   | VideoLoadedAction
   | PlayedPercentAction
-  | PlayerInstanceAction;
+  | PlayerInstanceAction
+  | PhraseAddAction
+  | PhraseDeleteAction;
 
 interface Store {
   state: AppState;
@@ -118,6 +133,17 @@ const playerInstanceReducer = (state: PlayerInstance, action: AppAction): Player
   }
 };
 
+const phraseReducer = (state: Phrase[], action: AppAction): Phrase[] => {
+  switch (action.type) {
+    case 'phrase/add':
+      return [...state, action.payload];
+    case 'phrase/delete':
+      return state.filter((_, index) => index !== action.payload);
+    default:
+      return state;
+  }
+};
+
 export const useAppStore = create<Store>((set) => ({
   state: {
     token: '',
@@ -126,6 +152,7 @@ export const useAppStore = create<Store>((set) => ({
     videoLoaded: false,
     playedPercent: 0,
     playerInstance: null,
+    phrases: [],
   },
   dispatch: (action) =>
     set((store) => ({
@@ -136,6 +163,7 @@ export const useAppStore = create<Store>((set) => ({
         videoLoaded: videoLoadedReducer(store.state.videoLoaded, action),
         playedPercent: playedPercentReducer(store.state.playedPercent, action),
         playerInstance: playerInstanceReducer(store.state.playerInstance, action),
+        phrases: phraseReducer(store.state.phrases, action),
       },
     })),
 }));
