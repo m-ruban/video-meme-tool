@@ -23,8 +23,8 @@ const Drop = ({ show, activator, children }: DropProps) => {
     }
     const rect = activator.current.getBoundingClientRect();
     const tooltip = tooltipRef.current;
-    tooltip.style.left = `${rect.left}px`;
-    tooltip.style.top = `${rect.bottom + TOP_PADDING}px`;
+    tooltip.style.left = `${rect.left + window.scrollX}px`;
+    tooltip.style.top = `${rect.bottom + window.scrollY + TOP_PADDING}px`;
     tooltip.style.width = `${rect.width - ITERNAL_PADDING - BORDER}px`;
   }, [activator]);
 
