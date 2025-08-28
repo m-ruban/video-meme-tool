@@ -15,6 +15,9 @@
 }
 
 .waveform-selection-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     background-color: #8898a533;
     z-index: 2;
@@ -22,11 +25,20 @@
     top: 0px;
 }
 
+.waveform-selection-box_saved {
+    background-color: #8898a547;
+}
+
 .waveform-selection-clear {
     position: absolute;
     right: 0;
     top: 0;
     cursor: pointer;
+    transition: transform 0.2s ease;
+
+     &:active {
+        transform: scale(0.9);
+    }
 }
 
 .waveform-phrase {
@@ -49,6 +61,6 @@
     line-height: 0.5;
 
     &:active {
-        transform: scale(0.8);
+        transform: scale(0.9);
     }
 }

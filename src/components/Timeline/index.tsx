@@ -74,7 +74,7 @@ const Timeline = ({ meme }: TimelineProps) => {
           <div ref={timelineScrollableRef} className="timeline-scrollable" onClick={handleClick}>
             <Ruler ref={rulerRef} duration={meme.duration} />
             <VideoTrack frames={meme.frames} />
-            <Waveform path={meme.waveform} />
+            <Waveform path={meme.waveform} duration={meme.duration} />
             <Playhead rulerRef={rulerRef} />
           </div>
         </div>
