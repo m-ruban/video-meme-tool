@@ -1,14 +1,23 @@
-import { useRef, useCallback, MouseEventHandler, useEffect, useState } from 'react';
-import { SmallCross } from 'src/components/Icon/SmallCross';
+import { useRef, useCallback, MouseEventHandler, useState } from 'react';
 import { Drop } from 'src/components/Drop';
 import { Input } from 'src/components/Input';
 import { Checkbox } from 'src/components/Icon/Checkbox';
 import { VolumeUp } from 'src/components/Icon/VolumeUp';
 import { Typography } from 'src/components/Typography';
+import { Selection } from 'src/components/Selection';
 import { useTestSpeech } from 'src/api/useTestSpeech';
 import { getUrl } from 'src/api/utils';
 import { getTrl } from 'src/lang/trls';
-import { useAppStore, Phrase } from 'src/store';
+import { useAppStore } from 'src/store';
+import {
+  Position,
+  Boundary,
+  useInputFocus,
+  useSelectionLayerMetric,
+  cancelEvent,
+  findBoundaryPhrases,
+  clamp,
+} from 'src/components/Timeline/components/Waveform/utils';
 import 'src/components/Timeline/components/Waveform/wave-form.less';
 
 interface WaveformProps {
@@ -16,38 +25,7 @@ interface WaveformProps {
   duration: number;
 }
 
-interface Position {
-  x: number;
-  y: number;
-}
-
-type Boundary = { left?: Phrase; right?: Phrase };
-
 const MIN_SELECTION = 25;
-const cancelEvent: MouseEventHandler<HTMLDivElement> = (event) => event.stopPropagation();
-
-function findBoundaryPhrases(phrases: Phrase[], x: number): Boundary {
-  let leftBoundary: Phrase | undefined;
-  let rightBoundary: Phrase | undefined;
-  for (const phrase of phrases) {
-    // левая граница
-    if (phrase.right < x) {
-      if (!leftBoundary || phrase.right > leftBoundary.right) {
-        leftBoundary = phrase;
-      }
-    }
-    // правая граница
-    if (phrase.left > x) {
-      if (!rightBoundary || phrase.left < rightBoundary.left) {
-        rightBoundary = phrase;
-      }
-    }
-  }
-  return { left: leftBoundary, right: rightBoundary };
-}
-
-const clamp = (value: number, min: number, max: number): number =>
-  Math.max(min, Math.min(max, value));
 
 export const Waveform = ({ path, duration }: WaveformProps) => {
   const dispatch = useAppStore((store) => store.dispatch);
@@ -132,7 +110,7 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
       startPosRef.current = { x: startX, y: startY };
       selectionRef.current.style.left = `${startX}px`;
       selectionRef.current.style.width = `0px`;
-      // сохраним границы
+      // сохраним ближайшие границы
       boundaryRef.current = findBoundaryPhrases(phrases, startX);
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
@@ -166,29 +144,20 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
     clearSelection();
   };
 
-  useEffect(() => {
-    if (!imgRef.current || !selectionLayerRef.current) {
+  const testSpeech = () => {
+    if (!textSpeech) {
       return;
     }
-    const updateBarWidth = () => {
-      if (!imgRef.current || !selectionLayerRef.current) {
-        return;
-      }
-      selectionLayerRef.current.style.width = imgRef.current.scrollWidth + 'px';
-    };
-    const resizeObserver = new ResizeObserver(updateBarWidth);
-    resizeObserver.observe(imgRef.current);
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
+    testSpeechRequest(textSpeech, (link) => {
+      setPhraseLink(link);
+      const audio = new Audio(getUrl(link));
+      audio.play();
+    });
+  };
 
-  useEffect(() => {
-    if (!inputRef.current || !showControls) {
-      return;
-    }
-    inputRef.current.focus();
-  }, [showControls]);
+  useInputFocus(inputRef, showControls);
+
+  useSelectionLayerMetric(imgRef, selectionLayerRef);
 
   return (
     <div className="waveform" onClick={cancelEvent}>
@@ -200,75 +169,46 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
       />
       {phrases.map(({ label, left, width }, index) => {
         return (
-          <div
+          <Selection
             key={`${label}-${left}-${width}`}
-            className="waveform-selection-box waveform-selection-box_saved"
-            onClick={cancelEvent}
-            onMouseDown={cancelEvent}
-            style={{ left: left, width: `${width}px` }}
+            left={left}
+            width={width}
+            onDelete={() => deleteSelection(index)}
+            isSaved
           >
-            <Typography mode="secondary" weight="bold">
+            <Typography mode="secondary" weight="bold" singleLine>
               {label}
             </Typography>
-            <span className="waveform-selection-clear" onClick={() => deleteSelection(index)}>
-              <SmallCross />
-            </span>
-          </div>
+          </Selection>
         );
       })}
-      <div
-        ref={selectionRef}
-        className="waveform-selection-box"
-        onClick={cancelEvent}
-        onMouseDown={cancelEvent}
-      >
+      <Selection ref={selectionRef} onDelete={clearSelection}>
         {showControls && (
-          <>
-            <Drop show={showControls} activator={selectionRef}>
-              <div className="waveform-phrase">
-                <Input
-                  ref={inputRef}
-                  name="phrase"
-                  placeholder={getTrl('phraseAdvice') as string}
-                  value={textSpeech}
-                  onChange={(event) => {
-                    setTextSpeech(event.target.value);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      savePhrase();
-                    }
-                  }}
-                  autoComplete="off"
-                />
-                <div className="waveform-phrase-actions">
-                  <span
-                    className="waveform-phrase-action"
-                    onClick={() => {
-                      if (!textSpeech) {
-                        return;
-                      }
-                      testSpeechRequest(textSpeech, (link) => {
-                        setPhraseLink(link);
-                        const audio = new Audio(getUrl(link));
-                        audio.play();
-                      });
-                    }}
-                  >
-                    <VolumeUp />
-                  </span>
-                  <span className="waveform-phrase-action" onClick={savePhrase}>
-                    <Checkbox />
-                  </span>
-                </div>
+          <Drop show={showControls} activator={selectionRef}>
+            <div className="waveform-phrase">
+              <Input
+                ref={inputRef}
+                name="phrase"
+                placeholder={getTrl('phraseAdvice') as string}
+                value={textSpeech}
+                onChange={(event) => {
+                  setTextSpeech(event.target.value);
+                }}
+                onKeyDown={(event) => event.key === 'Enter' && savePhrase()}
+                autoComplete="off"
+              />
+              <div className="waveform-phrase-actions">
+                <span className="waveform-phrase-action" onClick={testSpeech}>
+                  <VolumeUp />
+                </span>
+                <span className="waveform-phrase-action" onClick={savePhrase}>
+                  <Checkbox />
+                </span>
               </div>
-            </Drop>
-            <span className="waveform-selection-clear" onClick={clearSelection}>
-              <SmallCross />
-            </span>
-          </>
+            </div>
+          </Drop>
         )}
-      </div>
+      </Selection>
     </div>
   );
 };
