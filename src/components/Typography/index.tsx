@@ -10,12 +10,23 @@ interface TypographyProps {
   children: ReactNode;
   mode?: Mode;
   weight?: Weight;
+  singleLine?: boolean;
 }
 
-const Typography = ({ children, mode = 'primary', weight = 'regular' }: TypographyProps) => {
+const Typography = ({
+  children,
+  mode = 'primary',
+  weight = 'regular',
+  singleLine = false,
+}: TypographyProps) => {
   return (
     <div
-      className={classnames('typography', `typography_mode-${mode}`, `typography_weight-${weight}`)}
+      className={classnames(
+        'typography',
+        `typography_mode-${mode}`,
+        `typography_weight-${weight}`,
+        { [`typography_single-line`]: singleLine }
+      )}
     >
       {children}
     </div>
