@@ -1,19 +1,39 @@
+@progress-bar-radius: 6px;
+@progress-bar-height: 6px;
+@progress-bar-click-area: 7px;
+
 .progress-bar {
-  height: 6px;
-  width: 100%;
+  position: relative;
   background-color: #738697;
-  border-radius: 6px;
-  overflow: hidden;
   cursor: pointer;
   transition: background-color 0.1s linear;
-
+  border-radius: @progress-bar-radius;
+  
   &:hover {
     background-color: #7d92a5;
   }
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -@progress-bar-click-area;
+    bottom: -@progress-bar-click-area;
+    left: 0;
+    right: 0;
+    pointer-events: auto;
+    background-color: transparent;
+  }
+}
+
+.progress-fill-wrapper {
+  overflow: hidden;
+  width: 100%;
+  height: @progress-bar-height;
+  border-radius: @progress-bar-radius;
 }
 
 .progress-fill {
   height: 100%;
   background-color: #ffffff;
-  border-radius: 6px 0 0 6px;
+  border-radius: @progress-bar-radius 0 0 @progress-bar-radius;
 }

@@ -27,11 +27,13 @@ export const ProgressBar = ({ value, onChange }: ProgressBarProps) => {
 
   return (
     <div className="progress-bar" ref={barRef} onClick={handleClick}>
-      <motion.div
-        className="progress-fill"
-        animate={{ width: `${value}%` }}
-        transition={{ duration: 0.2 }}
-      />
+      <div className="progress-fill-wrapper">
+        <motion.div
+          className="progress-fill"
+          animate={{ width: `${value}%` }}
+          transition={{ duration: 0.2 }}
+        />
+      </div>
     </div>
   );
 };
