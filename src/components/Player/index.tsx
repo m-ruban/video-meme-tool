@@ -70,7 +70,7 @@ const Player = ({ meme }: PlayerProps) => {
       />
       <div className="player-actions-wrapper">
         <div className="player-actions">
-          <div className="player-progress-bar">
+          <div className="player-duration-progress-bar">
             <ProgressBar value={playedPercent} onChange={handleProgressChange} />
           </div>
           <div className="player-play" onClick={togglePlay}>
