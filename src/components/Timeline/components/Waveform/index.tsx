@@ -6,9 +6,10 @@ import { VolumeUp } from 'src/components/Icon/VolumeUp';
 import { Typography } from 'src/components/Typography';
 import { Selection } from 'src/components/Selection';
 import { useTestSpeech } from 'src/api/useTestSpeech';
+import { useReplaceAudio } from 'src/api/useReplaceAudio';
 import { getUrl } from 'src/api/utils';
 import { getTrl } from 'src/lang/trls';
-import { useAppStore } from 'src/store';
+import { useAppStore, Meme, ParticallPhrase } from 'src/store';
 import {
   Position,
   Boundary,
@@ -21,13 +22,12 @@ import {
 import 'src/components/Timeline/components/Waveform/wave-form.less';
 
 interface WaveformProps {
-  path: string;
-  duration: number;
+  meme: Meme;
 }
 
 const MIN_SELECTION = 25;
 
-export const Waveform = ({ path, duration }: WaveformProps) => {
+export const Waveform = ({ meme }: WaveformProps) => {
   const dispatch = useAppStore((store) => store.dispatch);
   const phrases = useAppStore(({ state }) => state.phrases);
   const [showControls, setShowControls] = useState(false);
@@ -40,6 +40,7 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const boundaryRef = useRef<Boundary>({});
   const testSpeechRequest = useTestSpeech();
+  const replaceAudioRequest = useReplaceAudio();
 
   const clearSelection = useCallback(() => {
     if (!selectionRef.current) {
@@ -49,16 +50,6 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
     selectionRef.current.style.width = `0px`;
     setShowControls(false);
   }, []);
-
-  const deleteSelection = useCallback(
-    (index: number) => {
-      dispatch({
-        type: 'phrase/delete',
-        payload: index,
-      });
-    },
-    [dispatch]
-  );
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!startPosRef.current || !imgRef.current || !selectionRef.current) {
@@ -119,16 +110,33 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
     [handleMouseMove, handleMouseUp, phrases]
   );
 
+  const sendReplaceAudioRequest = (phrasesForRequest: ParticallPhrase[]) => {
+    // enable loader
+    dispatch({ type: 'meme-loaded/set', payload: false });
+
+    // send request
+    const input = {
+      inputVideo: meme.link,
+      inputAudio: meme.audio,
+      phrases: JSON.stringify(phrasesForRequest),
+    };
+    replaceAudioRequest(input, (result) => {
+      dispatch({ type: 'meme/update', payload: result });
+    });
+  };
+
   const savePhrase = () => {
     if (!selectionRef.current || !selectionLayerRef.current) {
       return;
     }
+
+    // save currect phrase
     const selectionLayerRect = selectionLayerRef.current.getBoundingClientRect();
     const selectionRect = selectionRef.current.getBoundingClientRect();
     const selectionWidth = selectionRect.right - selectionRect.left;
     const selectionLeft = selectionRect.left - selectionLayerRect.left;
-    const phraseStart = duration * (selectionLeft / selectionLayerRect.width);
-    const phraseDuration = duration * (selectionWidth / selectionLayerRect.width);
+    const phraseStart = meme.duration * (selectionLeft / selectionLayerRect.width);
+    const phraseDuration = meme.duration * (selectionWidth / selectionLayerRect.width);
     dispatch({
       type: 'phrase/add',
       payload: {
@@ -142,6 +150,26 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
       },
     });
     clearSelection();
+
+    // replace audio and reload video
+    const phrasesForRequest = [
+      ...phrases.map(({ label, start }) => ({ label, start })),
+      { label: textSpeech, start: phraseStart },
+    ];
+    sendReplaceAudioRequest(phrasesForRequest);
+  };
+
+  const deleteSelection = (deletedIndex: number) => {
+    dispatch({
+      type: 'phrase/delete',
+      payload: deletedIndex,
+    });
+
+    // replace audio and reload video
+    const phrasesForRequest = phrases
+      .filter((_, index) => index !== deletedIndex)
+      .map(({ label, start }) => ({ label, start }));
+    sendReplaceAudioRequest(phrasesForRequest);
   };
 
   const testSpeech = () => {
@@ -161,7 +189,7 @@ export const Waveform = ({ path, duration }: WaveformProps) => {
 
   return (
     <div className="waveform" onClick={cancelEvent}>
-      <img ref={imgRef} src={path} alt="Waveform" />
+      <img ref={imgRef} src={meme.waveform} alt="Waveform" />
       <div
         ref={selectionLayerRef}
         className="waveform-selection-layer"
