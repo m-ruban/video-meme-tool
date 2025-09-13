@@ -15,12 +15,8 @@ const Editor = () => {
   return (
     <>
       <Player meme={meme} />
-      {videoLoaded && (
-        <>
-          <Timeline meme={meme} />
-          <SaveButton />
-        </>
-      )}
+      <Timeline meme={meme} />
+      {videoLoaded && <SaveButton />}
     </>
   );
 };

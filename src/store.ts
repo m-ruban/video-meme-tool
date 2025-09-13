@@ -28,7 +28,9 @@ export interface Meme {
   frames: string[];
 }
 export type NullableMeme = Meme | null;
-type MemeAction = { type: 'meme/set'; payload: Meme };
+export type ParticallMeme = Pick<Meme, 'link' | 'duration' | 'ext' | 'name'>;
+type MemeSetAction = { type: 'meme/set'; payload: Meme };
+type MemeUpdateAction = { type: 'meme/update'; payload: ParticallMeme };
 
 type StepState = 'load-file' | 'edit-file' | 'view-file';
 type StepAction = { type: 'step/set'; payload: StepState };
@@ -51,6 +53,7 @@ export interface Phrase {
   width: number;
   right: number;
 }
+export type ParticallPhrase = Pick<Phrase, 'start' | 'label'>;
 type PhraseAddAction = { type: 'phrase/add'; payload: Phrase };
 type PhraseDeleteAction = { type: 'phrase/delete'; payload: number };
 
@@ -66,7 +69,8 @@ type AppState = {
 
 type AppAction =
   | TokenAction
-  | MemeAction
+  | MemeSetAction
+  | MemeUpdateAction
   | StepAction
   | VideoLoadedAction
   | PlayedPercentAction
@@ -92,6 +96,9 @@ const memeReducer = (state: NullableMeme, action: AppAction): NullableMeme => {
   switch (action.type) {
     case 'meme/set':
       return action.payload;
+    case 'meme/update':
+      const oldMeme = state as Meme;
+      return { ...oldMeme, ...action.payload };
     default:
       return state;
   }

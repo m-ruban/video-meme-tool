@@ -48,7 +48,7 @@ const Player = ({ meme }: PlayerProps) => {
   );
 
   return (
-    <div className={classnames('player', { player_ready: videoLoaded })}>
+    <div className={classnames('player', { loaded: videoLoaded })}>
       <ReactPlayer
         ref={playerRef}
         url={meme.link}
@@ -68,24 +68,26 @@ const Player = ({ meme }: PlayerProps) => {
           togglePlay();
         }}
       />
-      <div className="player-actions-wrapper">
-        <div className="player-actions">
-          <div className="player-duration-progress-bar">
-            <ProgressBar value={playedPercent} onChange={handleProgressChange} />
-          </div>
-          <div className="player-play" onClick={togglePlay}>
-            <PlayPause playing={playing} />
-          </div>
-          <div className="player-volume">
-            <div className="player-volume-icon">
-              <Volume />
+      {videoLoaded && (
+        <div className="player-actions-wrapper">
+          <div className="player-actions">
+            <div className="player-duration-progress-bar">
+              <ProgressBar value={playedPercent} onChange={handleProgressChange} />
             </div>
-            <div className="player-volume-progress-bar">
-              <ProgressBar value={volume * 100} onChange={handleVolumeChange} />
+            <div className="player-play" onClick={togglePlay}>
+              <PlayPause playing={playing} />
+            </div>
+            <div className="player-volume">
+              <div className="player-volume-icon">
+                <Volume />
+              </div>
+              <div className="player-volume-progress-bar">
+                <ProgressBar value={volume * 100} onChange={handleVolumeChange} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

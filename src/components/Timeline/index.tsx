@@ -1,4 +1,5 @@
 import { useRef, useCallback, MouseEvent, useEffect } from 'react';
+import classnames from 'classnames';
 
 import { Meme, useAppStore } from 'src/store';
 import { Playhead } from 'src/components/Timeline/components/Playhead';
@@ -28,9 +29,10 @@ const Timeline = ({ meme }: TimelineProps) => {
   const rulerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineScrollableRef = useRef<HTMLDivElement>(null);
+  const videoLoaded = useAppStore((store) => store.state.videoLoaded);
 
   useEffect(() => {
-    if (!timelineRef.current || !timelineScrollableRef.current) {
+    if (!timelineRef.current || !timelineScrollableRef.current || !videoLoaded) {
       return;
     }
     const timelineDiv = timelineRef.current;
@@ -47,7 +49,7 @@ const Timeline = ({ meme }: TimelineProps) => {
       timelineScrollableDiv.removeEventListener('scroll', updateShadowsOnTimeline);
       window.removeEventListener('resize', updateShadowsOnTimeline);
     };
-  }, []);
+  }, [videoLoaded]);
 
   const handleClick = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {
@@ -70,13 +72,15 @@ const Timeline = ({ meme }: TimelineProps) => {
   return (
     <>
       <div className="timeline-wrapper">
-        <div ref={timelineRef} className="timeline">
-          <div ref={timelineScrollableRef} className="timeline-scrollable" onClick={handleClick}>
-            <Ruler ref={rulerRef} duration={meme.duration} />
-            <VideoTrack frames={meme.frames} />
-            <Waveform path={meme.waveform} duration={meme.duration} />
-            <Playhead rulerRef={rulerRef} />
-          </div>
+        <div ref={timelineRef} className={classnames('timeline', { loaded: videoLoaded })}>
+          {videoLoaded && (
+            <div ref={timelineScrollableRef} className="timeline-scrollable" onClick={handleClick}>
+              <Ruler ref={rulerRef} duration={meme.duration} />
+              <VideoTrack frames={meme.frames} />
+              <Waveform meme={meme} />
+              <Playhead rulerRef={rulerRef} />
+            </div>
+          )}
         </div>
       </div>
       <div className="timeline-advice">
