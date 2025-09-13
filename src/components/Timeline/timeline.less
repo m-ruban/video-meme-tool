@@ -1,3 +1,5 @@
+@import 'src/styles/blink';
+
 @padding: 10px;
 
 .timeline-wrapper {
@@ -13,6 +15,7 @@
     background-color: #2E343A;
     padding: @padding;
     border-radius: 20px;
+    min-height: 225px;
 
     --shadow-left: 0;
     --shadow-right: 0;
@@ -41,6 +44,8 @@
         background: linear-gradient(to left, #2E343A, transparent);
         opacity: var(--shadow-right);
     }
+
+    .blink(#2E343A; #2e343aa9);
 }
 
 .timeline-scrollable {

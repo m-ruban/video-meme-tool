@@ -1,0 +1,18 @@
+.blink(@base-color; @blink-color; @duration: 0.8s) {
+  background-color: @base-color;
+  animation: bg-blink @duration linear infinite;
+
+  &.loaded {
+    animation: none;
+    background-color: @base-color;
+  }
+
+  @keyframes bg-blink {
+    0%, 40%, 100% {
+        background-color: @base-color;
+    }
+    70% {
+        background-color: @blink-color;
+    }
+  }
+}
