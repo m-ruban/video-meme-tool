@@ -45,7 +45,7 @@
         opacity: var(--shadow-right);
     }
 
-    .blink(#2E343A; #2e343aa9);
+    .blink(#2E343A; #2e343aa9; #2E343A);
 }
 
 .timeline-scrollable {
@@ -54,9 +54,18 @@
     overflow-x: auto;
 }
 
-.timeline-advice {
+.timeline-advice-wripper {
     display: flex;
     justify-content: center;
-    margin-top: 15px;
-    padding-bottom: 10px;
+    margin-top: 10px;
+}
+
+.timeline-advice {
+    padding: 10px;
+    background-color: #2E343A;
+    border-radius: 10px;
+    min-height: 17px;
+    min-width: 500px;
+
+    .blink(#2E343A; #2e343aa9; transparent);
 }

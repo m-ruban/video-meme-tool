@@ -83,8 +83,10 @@ const Timeline = ({ meme }: TimelineProps) => {
           )}
         </div>
       </div>
-      <div className="timeline-advice">
-        <Typography>{getTrl('editAudioAdvice')}</Typography>
+      <div className="timeline-advice-wripper">
+        <div className={classnames('timeline-advice', { loaded: videoLoaded })}>
+          {videoLoaded && <Typography>{getTrl('editAudioAdvice')}</Typography>}
+        </div>
       </div>
     </>
   );

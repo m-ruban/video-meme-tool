@@ -1,15 +1,15 @@
-.blink(@base-color; @blink-color; @duration: 0.8s) {
-  background-color: @base-color;
+.blink(@start-color; @blink-color; @end-color; @duration: 0.8s) {
+  background-color: @start-color;
   animation: bg-blink @duration linear infinite;
 
   &.loaded {
     animation: none;
-    background-color: @base-color;
+    background-color: @end-color;
   }
 
   @keyframes bg-blink {
     0%, 40%, 100% {
-        background-color: @base-color;
+        background-color: @start-color;
     }
     70% {
         background-color: @blink-color;
