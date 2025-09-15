@@ -5,12 +5,15 @@ import 'src/components/Typography/typography.less';
 
 type Mode = 'primary' | 'secondary';
 type Weight = 'regular' | 'medium' | 'bold';
+type Size = 'small' | 'medium';
 
 interface TypographyProps {
   children: ReactNode;
   mode?: Mode;
+  size?: Size;
   weight?: Weight;
   singleLine?: boolean;
+  inline?: boolean;
 }
 
 const Typography = ({
@@ -18,18 +21,22 @@ const Typography = ({
   mode = 'primary',
   weight = 'regular',
   singleLine = false,
+  inline = false,
+  size = 'medium',
 }: TypographyProps) => {
+  const Component = inline ? 'span' : 'div';
   return (
-    <div
+    <Component
       className={classnames(
         'typography',
         `typography_mode-${mode}`,
         `typography_weight-${weight}`,
+        `typography_size-${size}`,
         { [`typography_single-line`]: singleLine }
       )}
     >
       {children}
-    </div>
+    </Component>
   );
 };
 
