@@ -44,6 +44,7 @@ type PlayedPercentAction = { type: 'played-percent/set'; payload: number };
 type PlayerInstance = ReactPlayer | null;
 type PlayerInstanceAction = { type: 'player-instance/set'; payload: PlayerInstance };
 
+export type PhraseMode = 'stretch' | 'fill';
 export interface Phrase {
   start: number;
   duration: number;
@@ -52,8 +53,9 @@ export interface Phrase {
   left: number;
   width: number;
   right: number;
+  mode: PhraseMode;
 }
-export type ParticallPhrase = Pick<Phrase, 'start' | 'label'>;
+export type ParticallPhrase = Pick<Phrase, 'start' | 'label' | 'mode'>;
 type PhraseAddAction = { type: 'phrase/add'; payload: Phrase };
 type PhraseDeleteAction = { type: 'phrase/delete'; payload: number };
 

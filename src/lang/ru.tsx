@@ -19,6 +19,8 @@ const ru = {
   uploadFileLoading: 'Файл загружается...',
   editAudioAdvice: 'Выделите фрагмент аудиодорожки и замените его новой репликой',
   phraseAdvice: 'Введите фразу',
+  modeStretch: 'подогнать',
+  modeFill: 'заполнить',
 };
 
 export { ru };

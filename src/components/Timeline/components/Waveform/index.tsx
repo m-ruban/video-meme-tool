@@ -1,15 +1,16 @@
 import { useRef, useCallback, MouseEventHandler, useState } from 'react';
 import { Drop } from 'src/components/Drop';
 import { Input } from 'src/components/Input';
-import { Checkbox } from 'src/components/Icon/Checkbox';
+import { Checkbox as CheckboxIcon } from 'src/components/Icon/Checkbox';
 import { VolumeUp } from 'src/components/Icon/VolumeUp';
 import { Typography } from 'src/components/Typography';
 import { Selection } from 'src/components/Selection';
+import { Chip } from 'src/components/Chip';
 import { useTestSpeech } from 'src/api/useTestSpeech';
 import { useReplaceAudio } from 'src/api/useReplaceAudio';
 import { getUrl } from 'src/api/utils';
 import { getTrl } from 'src/lang/trls';
-import { useAppStore, Meme, ParticallPhrase } from 'src/store';
+import { useAppStore, Meme, ParticallPhrase, PhraseMode } from 'src/store';
 import {
   Position,
   Boundary,
@@ -41,6 +42,9 @@ export const Waveform = ({ meme }: WaveformProps) => {
   const boundaryRef = useRef<Boundary>({});
   const testSpeechRequest = useTestSpeech();
   const replaceAudioRequest = useReplaceAudio();
+
+  const [mode, setMode] = useState<PhraseMode>('stretch');
+  const handleChangeMode = () => setMode((move) => (move === 'stretch' ? 'fill' : 'stretch'));
 
   const clearSelection = useCallback(() => {
     if (!selectionRef.current) {
@@ -129,6 +133,9 @@ export const Waveform = ({ meme }: WaveformProps) => {
     if (!selectionRef.current || !selectionLayerRef.current) {
       return;
     }
+    if (!textSpeech) {
+      return;
+    }
 
     // save currect phrase
     const selectionLayerRect = selectionLayerRef.current.getBoundingClientRect();
@@ -147,14 +154,15 @@ export const Waveform = ({ meme }: WaveformProps) => {
         left: selectionLeft,
         width: selectionRect.width,
         right: selectionLeft + selectionRect.width,
+        mode,
       },
     });
     clearSelection();
 
     // replace audio and reload video
     const phrasesForRequest = [
-      ...phrases.map(({ label, start }) => ({ label, start })),
-      { label: textSpeech, start: phraseStart },
+      ...phrases.map(({ label, start, mode }) => ({ label, start, mode })),
+      { label: textSpeech, start: phraseStart, mode },
     ];
     sendReplaceAudioRequest(phrasesForRequest);
   };
@@ -168,7 +176,7 @@ export const Waveform = ({ meme }: WaveformProps) => {
     // replace audio and reload video
     const phrasesForRequest = phrases
       .filter((_, index) => index !== deletedIndex)
-      .map(({ label, start }) => ({ label, start }));
+      .map(({ label, start, mode }) => ({ label, start, mode }));
     sendReplaceAudioRequest(phrasesForRequest);
   };
 
@@ -225,12 +233,20 @@ export const Waveform = ({ meme }: WaveformProps) => {
                 onKeyDown={(event) => event.key === 'Enter' && savePhrase()}
                 autoComplete="off"
               />
-              <div className="waveform-phrase-actions">
-                <span className="waveform-phrase-action" onClick={testSpeech}>
+              <div className="waveform-phrase-bottom-actions">
+                <Chip name="mode" checked={mode === 'stretch'} onChange={handleChangeMode}>
+                  {getTrl('modeStretch')}
+                </Chip>
+                <Chip name="mode" checked={mode === 'fill'} onChange={handleChangeMode}>
+                  {getTrl('modeFill')}
+                </Chip>
+              </div>
+              <div className="waveform-phrase-right-actions">
+                <span className="waveform-phrase-right-action" onClick={testSpeech}>
                   <VolumeUp />
                 </span>
-                <span className="waveform-phrase-action" onClick={savePhrase}>
-                  <Checkbox />
+                <span className="waveform-phrase-right-action" onClick={savePhrase}>
+                  <CheckboxIcon />
                 </span>
               </div>
             </div>
