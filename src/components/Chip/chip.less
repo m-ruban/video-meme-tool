@@ -1,0 +1,31 @@
+.chip {
+    display: inline-flex;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.chip-input {
+    position: absolute;
+    clip: rect(0 0 0 0);
+}
+
+.chip-input-content {
+    position: relative;
+    display: inline-flex;
+    color: #738697;
+    background-color: #2E343A;
+    transition: background-color 0.1s linear, transform 0.1s linear;
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.chip-input:checked + .chip-input-content::after {
+    border-bottom: 1px solid #738697;
+    width: 100%;
+    content: ' ';
+    position: absolute;
+    bottom: 0;
+}
