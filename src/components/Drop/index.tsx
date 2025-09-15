@@ -10,7 +10,7 @@ interface DropProps {
   children: ReactNode;
 }
 
-const TOP_PADDING = 10;
+const TOP_PADDING = 5;
 const ITERNAL_PADDING = 15 * 2;
 const BORDER = 4;
 
