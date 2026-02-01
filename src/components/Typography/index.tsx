@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
+import { ReactNode, FC } from 'react';
 import classnames from 'classnames';
 
 import 'src/components/Typography/typography.less';
 
 type Mode = 'primary' | 'secondary';
 type Weight = 'regular' | 'medium' | 'bold';
-type Size = 'small' | 'medium';
+type Size = 'small' | 'medium' | 'large';
 
 interface TypographyProps {
   children: ReactNode;
@@ -16,14 +16,14 @@ interface TypographyProps {
   inline?: boolean;
 }
 
-const Typography = ({
+const Typography: FC<TypographyProps> = ({
   children,
   mode = 'primary',
   weight = 'regular',
   singleLine = false,
   inline = false,
   size = 'medium',
-}: TypographyProps) => {
+}) => {
   const Component = inline ? 'span' : 'div';
   return (
     <Component
