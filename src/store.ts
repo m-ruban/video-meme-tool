@@ -1,12 +1,18 @@
 import { create } from 'zustand';
 import ReactPlayer from 'react-player';
 
-import { meme } from 'src/dummy';
-
 type TokenState = string;
 type TokenAction = { type: 'token/set'; payload: string };
 
+export interface Complaint {
+  reason: string;
+  description: string;
+  email: string;
+  memeId: number;
+}
+
 export interface Meme {
+  id: number;
   file: File;
   /** base file name */
   base: string;
@@ -55,7 +61,7 @@ export interface Phrase {
   right: number;
   mode: PhraseMode;
 }
-export type ParticallPhrase = Pick<Phrase, 'start' | 'label' | 'mode'>;
+export type ParticallPhrase = Pick<Phrase, 'start' | 'label' | 'mode' | 'duration'>;
 type PhraseAddAction = { type: 'phrase/add'; payload: Phrase };
 type PhraseDeleteAction = { type: 'phrase/delete'; payload: number };
 
@@ -156,8 +162,8 @@ const phraseReducer = (state: Phrase[], action: AppAction): Phrase[] => {
 export const useAppStore = create<Store>((set) => ({
   state: {
     token: '',
-    meme: meme,
-    step: 'edit-file',
+    meme: null, // meme
+    step: 'load-file', // edit-file | load-file
     videoLoaded: false,
     playedPercent: 0,
     playerInstance: null,

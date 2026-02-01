@@ -18,9 +18,17 @@ const ru = {
   uploadButtonCancel: 'Отмена',
   uploadFileLoading: 'Файл загружается...',
   editAudioAdvice: 'Выделите фрагмент аудиодорожки и замените его новой репликой',
-  phraseAdvice: 'Введите фразу',
-  modeStretch: 'подогнать',
+  phraseAdvice: 'Фраза',
+  modeStretch: 'вписать',
   modeFill: 'заполнить',
+  makeComplaint: 'Пожаловаться',
+  complaintTitle: 'Жалоба на контент',
+  complaintReason: 'Выберите причину',
+  reasonOption1: 'Авторские права',
+  reasonOption2: 'Другое',
+  complaintEmail: 'Укажите обратный адрес',
+  complaintText: 'Внесите описание',
+  complaintSend: 'Отправить',
 };
 
 export { ru };
