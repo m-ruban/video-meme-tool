@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 
 import 'src/components/Card/card.less';
 
@@ -8,7 +8,7 @@ type CardProps = {
   icon: ReactNode;
 };
 
-const Card = ({ index, title, icon }: CardProps) => {
+const Card: FC<CardProps> = ({ index, title, icon }) => {
   return (
     <div className="card">
       <div className="card-index">{index}.</div>

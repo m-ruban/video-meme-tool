@@ -1,4 +1,4 @@
-import { useRef, useCallback, MouseEvent } from 'react';
+import { useRef, useCallback, MouseEvent, type FC } from 'react';
 import { motion } from 'framer-motion';
 
 import 'src/components/ProgressBar/progress-bar.less';
@@ -10,7 +10,7 @@ interface ProgressBarProps {
   onChange?: OnChange;
 }
 
-export const ProgressBar = ({ value, onChange }: ProgressBarProps) => {
+export const ProgressBar: FC<ProgressBarProps> = ({ value, onChange }) => {
   const barRef = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef<OnChange>(onChange);
   onChangeRef.current = onChange;

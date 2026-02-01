@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type FC } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
 
 import { VideoFile } from 'src/components/Icon/VideoFile';
@@ -23,7 +23,7 @@ interface UploadedFile {
   loading: boolean;
 }
 
-const Upload = () => {
+const Upload: FC = () => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile>();
   const [error, setError] = useState('');
   const fileSize = uploadedFile?.file.size || 0;

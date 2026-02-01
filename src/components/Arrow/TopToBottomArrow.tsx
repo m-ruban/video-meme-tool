@@ -1,6 +1,7 @@
+import { FC } from 'react';
 import { ArrowWrapper } from 'src/components/Arrow/ArrowWrapper';
 
-const TopToBottomArrow = () => {
+const TopToBottomArrow: FC = () => {
   return (
     <ArrowWrapper>
       <svg

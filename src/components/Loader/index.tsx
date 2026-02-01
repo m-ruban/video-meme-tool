@@ -1,10 +1,11 @@
+import { FC } from 'react';
 import { motion } from 'framer-motion';
 
 import { Loading } from 'src/components/Icon/Loading';
 
 import 'src/components/Loader/loader.less';
 
-const Loader = () => {
+const Loader: FC = () => {
   return (
     <motion.div
       className="loader"

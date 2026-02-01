@@ -1,4 +1,4 @@
-import { useRef, useCallback, MouseEvent, useEffect } from 'react';
+import { useRef, useCallback, type MouseEvent, useEffect, type FC } from 'react';
 import classnames from 'classnames';
 
 import { Meme, useAppStore } from 'src/store';
@@ -23,7 +23,7 @@ const updateShadows = (timeline: HTMLDivElement, timelineScrollableDiv: HTMLDivE
   timeline.style.setProperty('--shadow-right', scrollLeft + clientWidth < scrollWidth ? '1' : '0');
 };
 
-const Timeline = ({ meme }: TimelineProps) => {
+const Timeline: FC<TimelineProps> = ({ meme }) => {
   const dispatch = useAppStore((store) => store.dispatch);
   const playerInstance = useAppStore((store) => store.state.playerInstance);
   const rulerRef = useRef<HTMLDivElement>(null);

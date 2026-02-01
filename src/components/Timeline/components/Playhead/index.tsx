@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef, type FC } from 'react';
 import { useAppStore } from 'src/store';
 
 import 'src/components/Timeline/components/Playhead/playhead.less';
@@ -18,7 +18,7 @@ const calcLeft = (rulerRef: RefObject<HTMLDivElement | null>, playedPercent: num
   return Math.max(PADDING, rulerWidth * (playedPercent / 100) + PLAYHEAD_WIDTH);
 };
 
-const Playhead = ({ rulerRef }: PlayheadProps) => {
+const Playhead: FC<PlayheadProps> = ({ rulerRef }) => {
   const playedPercent = useAppStore((store) => store.state.playedPercent);
   const playheadRef = useRef<HTMLDivElement>(null);
 
