@@ -8,14 +8,12 @@ export interface ReplaceAudioInput {
   phrases: string;
 }
 
-type OnComplete = (result: ParticallMeme) => void;
-
-interface ReplaceAutioRequest {
-  (input: ReplaceAudioInput, onComplete: OnComplete): void;
+interface ReplaceAudioRequest {
+  (input: ReplaceAudioInput, onComplete: (result: ParticallMeme) => void): void;
 }
 
-const useReplaceAudio = (): ReplaceAutioRequest => {
-  return useCallback<ReplaceAutioRequest>((input, onComplete) => {
+const useReplaceAudio = (): ReplaceAudioRequest => {
+  return useCallback<ReplaceAudioRequest>((input, onComplete) => {
     fetcher
       .post<ParticallMeme>('/api/v1/video/update-audio/', input)
       .then((res) => onComplete(res.data));

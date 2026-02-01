@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { fetcher } from 'src/api/fetcher';
-
-type OnComplete = (link: string) => void;
+import { PhraseMode } from 'src/store';
 
 interface TestSpeechRequest {
-  (text: string, onComplete: OnComplete): void;
+  (text: string, mode: PhraseMode, duration: number, onComplete: (link: string) => void): void;
 }
 
 interface TestSpeechResult {
@@ -12,9 +11,9 @@ interface TestSpeechResult {
 }
 
 const useTestSpeech = (): TestSpeechRequest => {
-  return useCallback<TestSpeechRequest>((text, onComplete) => {
+  return useCallback<TestSpeechRequest>((text, mode, duration, onComplete) => {
     fetcher
-      .post<TestSpeechResult>('/api/v1/video/speech-test/', { text })
+      .post<TestSpeechResult>('/api/v1/video/speech-test/', { text, mode, duration })
       .then((res) => onComplete(res.data.link));
   }, []);
 };
