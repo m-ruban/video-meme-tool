@@ -1,5 +1,5 @@
 import { useEffect, MouseEventHandler, RefObject } from 'react';
-import { Phrase } from 'src/store';
+import { Phrase, Meme } from 'src/store';
 
 export interface Position {
   x: number;
@@ -9,6 +9,13 @@ export interface Position {
 export type Boundary = { left?: Phrase; right?: Phrase };
 
 export const cancelEvent: MouseEventHandler<HTMLDivElement> = (event) => event.stopPropagation();
+
+export type PhraseDurationInfo = {
+  phraseStart: number;
+  phraseDuration: number;
+  selectionLeft: number;
+  selectionRectWidth: number;
+};
 
 export function findBoundaryPhrases(phrases: Phrase[], x: number): Boundary {
   let leftBoundary: Phrase | undefined;
@@ -62,4 +69,33 @@ export const useSelectionLayerMetric = (
       resizeObserver.disconnect();
     };
   }, [imgRef, selectionLayerRef]);
+};
+
+export const getPhraseDurationBasedOnSelection = (
+  selectionLayerRef: RefObject<HTMLDivElement | null>,
+  selectionRef: RefObject<HTMLDivElement | null>,
+  meme: Meme
+): PhraseDurationInfo => {
+  if (!selectionRef.current || !selectionLayerRef.current) {
+    return {
+      phraseStart: 0,
+      phraseDuration: 0,
+      selectionLeft: 0,
+      selectionRectWidth: 0,
+    };
+  }
+
+  const selectionLayerRect = selectionLayerRef.current.getBoundingClientRect();
+  const selectionRect = selectionRef.current.getBoundingClientRect();
+  const selectionWidth = selectionRect.right - selectionRect.left;
+  const selectionLeft = selectionRect.left - selectionLayerRect.left;
+  const phraseStart = meme.duration * (selectionLeft / selectionLayerRect.width);
+  const phraseDuration = meme.duration * (selectionWidth / selectionLayerRect.width);
+
+  return {
+    phraseStart,
+    phraseDuration,
+    selectionLeft,
+    selectionRectWidth: selectionRect.width,
+  };
 };

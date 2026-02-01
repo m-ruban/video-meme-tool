@@ -1,8 +1,10 @@
-import { useRef, useCallback, MouseEventHandler, useState } from 'react';
+import { useRef, useCallback, MouseEventHandler, useState, type FC } from 'react';
 import { Drop } from 'src/components/Drop';
 import { Input } from 'src/components/Input';
 import { Checkbox as CheckboxIcon } from 'src/components/Icon/Checkbox';
 import { VolumeUp } from 'src/components/Icon/VolumeUp';
+import { Fill } from 'src/components/Icon/Fill';
+import { Strench } from 'src/components/Icon/Strench';
 import { Typography } from 'src/components/Typography';
 import { Selection } from 'src/components/Selection';
 import { Chip } from 'src/components/Chip';
@@ -19,6 +21,7 @@ import {
   cancelEvent,
   findBoundaryPhrases,
   clamp,
+  getPhraseDurationBasedOnSelection,
 } from 'src/components/Timeline/components/Waveform/utils';
 import 'src/components/Timeline/components/Waveform/wave-form.less';
 
@@ -27,8 +30,10 @@ interface WaveformProps {
 }
 
 const MIN_SELECTION = 25;
+const ICON_HEIGHT = 17;
+const ICON_OFFSET = 2;
 
-export const Waveform = ({ meme }: WaveformProps) => {
+export const Waveform: FC<WaveformProps> = ({ meme }) => {
   const dispatch = useAppStore((store) => store.dispatch);
   const phrases = useAppStore(({ state }) => state.phrases);
   const [showControls, setShowControls] = useState(false);
@@ -42,9 +47,9 @@ export const Waveform = ({ meme }: WaveformProps) => {
   const boundaryRef = useRef<Boundary>({});
   const testSpeechRequest = useTestSpeech();
   const replaceAudioRequest = useReplaceAudio();
+  const [mode, setMode] = useState<PhraseMode>('fill');
 
-  const [mode, setMode] = useState<PhraseMode>('stretch');
-  const handleChangeMode = () => setMode((move) => (move === 'stretch' ? 'fill' : 'stretch'));
+  const handleChangeMode = useCallback((move: PhraseMode) => setMode(move), []);
 
   const clearSelection = useCallback(() => {
     if (!selectionRef.current) {
@@ -138,12 +143,8 @@ export const Waveform = ({ meme }: WaveformProps) => {
     }
 
     // save currect phrase
-    const selectionLayerRect = selectionLayerRef.current.getBoundingClientRect();
-    const selectionRect = selectionRef.current.getBoundingClientRect();
-    const selectionWidth = selectionRect.right - selectionRect.left;
-    const selectionLeft = selectionRect.left - selectionLayerRect.left;
-    const phraseStart = meme.duration * (selectionLeft / selectionLayerRect.width);
-    const phraseDuration = meme.duration * (selectionWidth / selectionLayerRect.width);
+    const { phraseStart, phraseDuration, selectionLeft, selectionRectWidth } =
+      getPhraseDurationBasedOnSelection(selectionLayerRef, selectionRef, meme);
     dispatch({
       type: 'phrase/add',
       payload: {
@@ -152,8 +153,8 @@ export const Waveform = ({ meme }: WaveformProps) => {
         link: phraseLink,
         label: textSpeech,
         left: selectionLeft,
-        width: selectionRect.width,
-        right: selectionLeft + selectionRect.width,
+        width: selectionRectWidth,
+        right: selectionLeft + selectionRectWidth,
         mode,
       },
     });
@@ -161,8 +162,13 @@ export const Waveform = ({ meme }: WaveformProps) => {
 
     // replace audio and reload video
     const phrasesForRequest = [
-      ...phrases.map(({ label, start, mode }) => ({ label, start, mode })),
-      { label: textSpeech, start: phraseStart, mode },
+      ...phrases.map(({ label, start, mode, duration }) => ({ label, start, mode, duration })),
+      {
+        label: textSpeech,
+        start: phraseStart,
+        mode,
+        duration: phraseDuration,
+      },
     ];
     sendReplaceAudioRequest(phrasesForRequest);
   };
@@ -176,7 +182,7 @@ export const Waveform = ({ meme }: WaveformProps) => {
     // replace audio and reload video
     const phrasesForRequest = phrases
       .filter((_, index) => index !== deletedIndex)
-      .map(({ label, start, mode }) => ({ label, start, mode }));
+      .map(({ label, start, mode, duration }) => ({ label, start, mode, duration }));
     sendReplaceAudioRequest(phrasesForRequest);
   };
 
@@ -184,7 +190,12 @@ export const Waveform = ({ meme }: WaveformProps) => {
     if (!textSpeech) {
       return;
     }
-    testSpeechRequest(textSpeech, (link) => {
+    const phraseDurationInfo = getPhraseDurationBasedOnSelection(
+      selectionLayerRef,
+      selectionRef,
+      meme
+    );
+    testSpeechRequest(textSpeech, mode, phraseDurationInfo.phraseDuration, (link) => {
       setPhraseLink(link);
       const audio = new Audio(getUrl(link));
       audio.play();
@@ -219,28 +230,36 @@ export const Waveform = ({ meme }: WaveformProps) => {
         );
       })}
       <Selection ref={selectionRef} onDelete={clearSelection}>
-        {showControls && (
-          <Drop show={showControls} activator={selectionRef}>
-            <div className="waveform-phrase">
-              <Input
-                ref={inputRef}
-                name="phrase"
-                placeholder={getTrl('phraseAdvice') as string}
-                value={textSpeech}
-                onChange={(event) => {
-                  setTextSpeech(event.target.value);
-                }}
-                onKeyDown={(event) => event.key === 'Enter' && savePhrase()}
-                autoComplete="off"
-              />
-              <div className="waveform-phrase-bottom-actions">
-                <Chip name="mode" checked={mode === 'stretch'} onChange={handleChangeMode}>
-                  {getTrl('modeStretch')}
-                </Chip>
-                <Chip name="mode" checked={mode === 'fill'} onChange={handleChangeMode}>
-                  {getTrl('modeFill')}
-                </Chip>
-              </div>
+        <Drop show={showControls} activator={selectionRef} style={{ minWidth: 150 }}>
+          <div className="waveform-phrase">
+            <Input
+              ref={inputRef}
+              name="phrase"
+              placeholder={getTrl('phraseAdvice') as string}
+              value={textSpeech}
+              onChange={(event) => {
+                setTextSpeech(event.target.value);
+              }}
+              onKeyDown={(event) => event.key === 'Enter' && savePhrase()}
+              autoComplete="off"
+            />
+            <div className="waveform-phrase-bottom-actions">
+              <Chip
+                name="mode"
+                checked={mode === 'fill'}
+                onChange={() => handleChangeMode('fill')}
+                wrapperProps={{ style: { height: ICON_HEIGHT + ICON_OFFSET } }}
+              >
+                <Fill style={{ height: ICON_HEIGHT }} />
+              </Chip>
+              <Chip
+                name="mode"
+                checked={mode === 'stretch'}
+                onChange={() => handleChangeMode('stretch')}
+                wrapperProps={{ style: { height: ICON_HEIGHT + ICON_OFFSET } }}
+              >
+                <Strench style={{ height: ICON_HEIGHT }} />
+              </Chip>
               <div className="waveform-phrase-right-actions">
                 <span className="waveform-phrase-right-action" onClick={testSpeech}>
                   <VolumeUp />
@@ -250,8 +269,8 @@ export const Waveform = ({ meme }: WaveformProps) => {
                 </span>
               </div>
             </div>
-          </Drop>
-        )}
+          </div>
+        </Drop>
       </Selection>
     </div>
   );
