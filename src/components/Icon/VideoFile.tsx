@@ -1,4 +1,6 @@
-const VideoFile = () => {
+import { FC } from 'react';
+
+const VideoFile: FC = () => {
   return (
     <svg width="65" height="65" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
       <mask

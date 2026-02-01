@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Play } from 'src/components/Icon/Play';
 import { Pause } from 'src/components/Icon/Pause';
@@ -6,7 +7,7 @@ interface PlayPauseProps {
   playing: boolean;
 }
 
-const PlayPause = ({ playing }: PlayPauseProps) => {
+const PlayPause: FC<PlayPauseProps> = ({ playing }) => {
   return (
     <AnimatePresence mode="wait">
       {playing ? (
