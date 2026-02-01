@@ -62,14 +62,11 @@ const Drop: FC<DropProps> = ({
 
       const dropElement = dropRef.current;
       const activatorElement = activator.current;
-      if (!dropElement) {
+      if (!dropElement || !activatorElement) {
         return;
       }
 
-      const clickedInsideDrop = dropElement.contains(target);
-      const clickedActivator = activatorElement ? activatorElement.contains(target) : false;
-
-      if (!clickedInsideDrop && !clickedActivator) {
+      if (!dropElement.contains(target) && !activatorElement.contains(target)) {
         onClose?.();
       }
     };
