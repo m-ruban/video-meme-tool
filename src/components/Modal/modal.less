@@ -1,0 +1,63 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: fade(#2E343A, 90%);
+}
+
+.modal-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-height: 100%;
+    box-sizing: border-box;
+    z-index: 1001;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    z-index: 1002;
+    user-select: text;
+    background-color: #383F47;
+    box-sizing: border-box;
+    box-shadow: 0 2px 2px 0 fade(#1F2327, 30%);
+    margin: auto;
+    padding: 30px;
+    overflow: auto;
+    border-radius: 10px;
+}
+
+.modal-close-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 4;
+    cursor: pointer;
+}
+
+.no-scroll {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.no-scroll_ios {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    height: 100%;
+}
