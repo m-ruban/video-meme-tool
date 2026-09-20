@@ -1,7 +1,7 @@
 import { forwardRef, ReactNode } from 'react';
 import classnames from 'classnames';
 import { SmallCross } from 'src/components/Icon/SmallCross';
-import { cancelEvent } from 'src/components/Timeline/components/Waveform/utils';
+import { cancelEvent } from 'src/components/Selection/utils';
 
 import 'src/components/Selection/selection.less';
 
@@ -11,10 +11,11 @@ interface SelectionProps {
   isSaved?: boolean;
   left?: number;
   width?: number;
+  showClose?: boolean;
 }
 
 const Selection = forwardRef<HTMLDivElement, SelectionProps>(
-  ({ children, isSaved, left, width, onDelete }, ref) => (
+  ({ children, isSaved, left, width, onDelete, showClose = false }, ref) => (
     <div
       ref={ref}
       className={classnames('waveform-selection-box', {
@@ -25,7 +26,7 @@ const Selection = forwardRef<HTMLDivElement, SelectionProps>(
       style={width ? { left: `${left}px`, width: `${width}px` } : {}}
     >
       {children}
-      {children && (
+      {showClose && (
         <span className="waveform-selection-clear" onClick={onDelete}>
           <SmallCross />
         </span>
