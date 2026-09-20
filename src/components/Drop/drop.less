@@ -5,5 +5,19 @@
     padding: 8px;
     border-radius: 10px;
     z-index: 999;
-    border: 4px solid #1f2327;
+    border: 1px solid #1f2327;
+    box-shadow: 1px 2px 6px 1px #1f2327;
+}
+
+.drop::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  transform: rotate(45deg);
+  border-left: 1px solid #1f2327;
+  border-top: 1px solid #1f2327;
 }

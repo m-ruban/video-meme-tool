@@ -13,9 +13,9 @@ interface DropProps {
   onClose?: () => void;
 }
 
-const TOP_PADDING = 5;
+const TOP_PADDING = 7;
 const ITERNAL_PADDING = 20;
-const BORDER = 4;
+const BORDER = 2;
 
 const Drop: FC<DropProps> = ({
   show,
