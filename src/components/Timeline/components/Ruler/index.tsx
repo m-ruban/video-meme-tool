@@ -1,5 +1,6 @@
 import { useMemo, forwardRef } from 'react';
 import classnames from 'classnames';
+
 import 'src/components/Timeline/components/Ruler/ruler.less';
 
 interface RulerProps {
@@ -18,7 +19,7 @@ export const Ruler = forwardRef<HTMLDivElement, RulerProps>(({ duration }, ref) 
       {bars.map((currentBar) => {
         return (
           <div key={currentBar} className="bar">
-            <div className="label left">{currentBar}</div>
+            <div className="label">{currentBar}</div>
             {ticks.map((tick) => (
               <div
                 key={tick}
