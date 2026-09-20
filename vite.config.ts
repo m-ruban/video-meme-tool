@@ -20,7 +20,7 @@ export default defineConfig({
         target: 'http://video-meme.fun/',
         changeOrigin: true,
       },
-      '^.*\\.(mp4|png)$': {
+      '^.*\\.(mp4|png|webp|jpg)$': {
         target: 'http://video-meme.fun',
         changeOrigin: true,
       },
