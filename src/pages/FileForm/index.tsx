@@ -5,7 +5,7 @@ import { StylusNote } from 'src/components/Icon/StylusNote';
 import { Share } from 'src/components/Icon/Share';
 import { BottomToTopArrow } from 'src/components/Arrow/BottomToTopArrow';
 import { TopToBottomArrow } from 'src/components/Arrow/TopToBottomArrow';
-import { Upload } from 'src/components/Upload';
+import { UploadVideo } from 'src/components/UploadVideo';
 import { getTrl } from 'src/lang/trls';
 import { PageWithToken } from 'src/pages/PageWithApi';
 
@@ -24,7 +24,7 @@ const FileForm: FC = () => {
             <Card index="3" title={getTrl('step3')} icon={<Share />} />
           </div>
         </div>
-        <Upload />
+        <UploadVideo />
       </div>
     </PageWithToken>
   );

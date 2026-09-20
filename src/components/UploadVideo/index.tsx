@@ -1,20 +1,21 @@
 import { useState, useCallback, type FC } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
+import axios from 'axios';
 
 import { VideoFile } from 'src/components/Icon/VideoFile';
 import { Error } from 'src/components/Icon/Error';
 import { Button } from 'src/components/Button';
 import { Loader } from 'src/components/Loader';
 import { Typography } from 'src/components/Typography';
-import { fetcher } from 'src/api/fetcher';
+import { fetcher, ApiError } from 'src/api/fetcher';
 import { Meme, useAppStore } from 'src/store';
 import { getTrl } from 'src/lang/trls';
 
-import 'src/components/Upload/upload.less';
+import 'src/components/UploadVideo/upload-video.less';
 
 const sizeMB = (size: number) => (size / (1024 * 1024)).toFixed(2);
 
-const IMAGE_ACCEPT = {
+const VIDEO_ACCEPT = {
   'video/mp4': ['.mp4'],
 };
 
@@ -23,7 +24,7 @@ interface UploadedFile {
   loading: boolean;
 }
 
-const Upload: FC = () => {
+const UploadVideo: FC = () => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile>();
   const [error, setError] = useState('');
   const fileSize = uploadedFile?.file.size || 0;
@@ -47,21 +48,30 @@ const Upload: FC = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetcher.post<Meme>('/api/v1/video/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        dispatch({ type: 'meme/set', payload: { ...response.data, file } });
-        dispatch({ type: 'step/set', payload: 'edit-file' });
+        try {
+          const response = await fetcher.post<Meme>('/api/v1/video/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          dispatch({
+            type: 'meme/set',
+            payload: { ...response.data, originalLink: response.data.link, file },
+          });
+          dispatch({ type: 'step/set', payload: 'edit-file' });
+        } catch (error: unknown) {
+          if (axios.isAxiosError<ApiError>(error)) {
+            const message = error.response?.data?.message;
+            setError(Array.isArray(message) ? message.join(', ') : message || '');
+          }
+        }
       }
     },
     [dispatch]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: IMAGE_ACCEPT,
+    accept: VIDEO_ACCEPT,
     onDropAccepted,
     onDropRejected,
     multiple: false,
@@ -108,4 +118,4 @@ const Upload: FC = () => {
   );
 };
 
-export { Upload };
+export { UploadVideo };
