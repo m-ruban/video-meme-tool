@@ -1,4 +1,4 @@
-import { useRef, useCallback, MouseEventHandler, useState, type FC } from 'react';
+import { useRef, useCallback, useState, type FC } from 'react';
 import { Drop } from 'src/components/Drop';
 import { Input } from 'src/components/Input';
 import { Checkbox as CheckboxIcon } from 'src/components/Icon/Checkbox';
@@ -6,7 +6,12 @@ import { VolumeUp } from 'src/components/Icon/VolumeUp';
 import { Fill } from 'src/components/Icon/Fill';
 import { Strench } from 'src/components/Icon/Strench';
 import { Typography } from 'src/components/Typography';
-import { Selection } from 'src/components/Selection';
+import {
+  Selection,
+  useSelection,
+  cancelEvent,
+  getMetricBasedOnSelection,
+} from 'src/components/Selection';
 import { Chip } from 'src/components/Chip';
 import { useTestSpeech } from 'src/api/useTestSpeech';
 import { useReplaceAudio } from 'src/api/useReplaceAudio';
@@ -14,14 +19,9 @@ import { getUrl } from 'src/api/utils';
 import { getTrl } from 'src/lang/trls';
 import { useAppStore, Meme, ParticallPhrase, PhraseMode } from 'src/store';
 import {
-  Position,
-  Boundary,
   useInputFocus,
-  useSelectionLayerMetric,
-  cancelEvent,
   findBoundaryPhrases,
-  clamp,
-  getPhraseDurationBasedOnSelection,
+  useSelectionLayerMetric,
 } from 'src/components/Timeline/components/Waveform/utils';
 import 'src/components/Timeline/components/Waveform/wave-form.less';
 
@@ -29,7 +29,6 @@ interface WaveformProps {
   meme: Meme;
 }
 
-const MIN_SELECTION = 25;
 const ICON_HEIGHT = 17;
 const ICON_OFFSET = 2;
 
@@ -39,95 +38,55 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
   const [showControls, setShowControls] = useState(false);
   const [textSpeech, setTextSpeech] = useState('');
   const [phraseLink, setPhraseLink] = useState('');
-  const selectionLayerRef = useRef<HTMLDivElement>(null);
-  const selectionRef = useRef<HTMLDivElement>(null);
-  const startPosRef = useRef<Position | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const boundaryRef = useRef<Boundary>({});
+  const baseImageLayerRef = useRef<HTMLImageElement>(null);
   const testSpeechRequest = useTestSpeech();
   const replaceAudioRequest = useReplaceAudio();
   const [mode, setMode] = useState<PhraseMode>('fill');
+  const overlays = useAppStore(({ state }) => state.overlays);
 
   const handleChangeMode = useCallback((move: PhraseMode) => setMode(move), []);
 
-  const clearSelection = useCallback(() => {
-    if (!selectionRef.current) {
-      return;
-    }
-    selectionRef.current.style.left = `0px`;
-    selectionRef.current.style.width = `0px`;
+  const onSelectionStart = useCallback(() => {
     setShowControls(false);
   }, []);
 
-  const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (!startPosRef.current || !imgRef.current || !selectionRef.current) {
-      return;
-    }
-
-    const { left: leftBoundary, right: rightBoundary } = boundaryRef.current;
-    const startPos = startPosRef.current;
-    const rect = imgRef.current.getBoundingClientRect();
-    const currentX = event.clientX - rect.left;
-    const leftBoundaryValue = leftBoundary?.right ?? Number.NEGATIVE_INFINITY;
-    const rightBoundaryValue = rightBoundary?.left ?? Number.POSITIVE_INFINITY;
-
-    const anchor = clamp(startPos.x, leftBoundaryValue, rightBoundaryValue);
-    const cursor = clamp(currentX, leftBoundaryValue, rightBoundaryValue);
-    const left = Math.min(anchor, cursor);
-    const right = Math.max(anchor, cursor);
-
-    selectionRef.current.style.left = `${left}px`;
-    selectionRef.current.style.width = `${Math.max(0, right - left)}px`;
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    if (!selectionRef.current) {
-      return;
-    }
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
-    const rect = selectionRef.current.getBoundingClientRect();
-    startPosRef.current = null;
-    if (rect.width < MIN_SELECTION) {
-      clearSelection();
-      return;
-    }
+  const onSelectionEnd = useCallback(() => {
     setShowControls(true);
     setTextSpeech('');
     setPhraseLink('');
-  }, [handleMouseMove, clearSelection]);
+  }, []);
 
-  const handleMouseDown: MouseEventHandler<HTMLDivElement> = useCallback(
-    (event) => {
-      if (!imgRef.current || !selectionRef.current) {
-        return;
-      }
-      event.stopPropagation();
-      const rect = imgRef.current.getBoundingClientRect();
-      const startX = event.clientX - rect.left;
-      const startY = event.clientY - rect.top;
-      startPosRef.current = { x: startX, y: startY };
-      selectionRef.current.style.left = `${startX}px`;
-      selectionRef.current.style.width = `0px`;
-      // сохраним ближайшие границы
-      boundaryRef.current = findBoundaryPhrases(phrases, startX);
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      setShowControls(false);
-    },
-    [handleMouseMove, handleMouseUp, phrases]
+  const findBoundary = useCallback(
+    (startX: number) => findBoundaryPhrases(startX, phrases),
+    [phrases]
   );
+
+  const { selectionLayerRef, selectionRef, handleMouseDown, clear } = useSelection(
+    onSelectionStart,
+    onSelectionEnd,
+    findBoundary
+  );
+
+  const clearSelection = useCallback(() => {
+    clear();
+    setShowControls(false);
+  }, [clear]);
 
   const sendReplaceAudioRequest = (phrasesForRequest: ParticallPhrase[]) => {
     // enable loader
     dispatch({ type: 'meme-loaded/set', payload: false });
 
+    if (!meme.originalLink) {
+      return;
+    }
+
     // send request
     const input = {
-      inputVideo: meme.link,
+      inputVideo: meme.originalLink,
       inputAudio: meme.audio,
       phrases: JSON.stringify(phrasesForRequest),
+      overlays: JSON.stringify(overlays),
     };
     replaceAudioRequest(input, (result) => {
       dispatch({ type: 'meme/update', payload: result });
@@ -143,18 +102,21 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
     }
 
     // save currect phrase
-    const { phraseStart, phraseDuration, selectionLeft, selectionRectWidth } =
-      getPhraseDurationBasedOnSelection(selectionLayerRef, selectionRef, meme);
+    const { start, duration, left, width } = getMetricBasedOnSelection(
+      selectionLayerRef,
+      selectionRef,
+      meme
+    );
     dispatch({
       type: 'phrase/add',
       payload: {
-        start: phraseStart,
-        duration: phraseDuration,
+        start,
+        duration,
         link: phraseLink,
         label: textSpeech,
-        left: selectionLeft,
-        width: selectionRectWidth,
-        right: selectionLeft + selectionRectWidth,
+        left,
+        width,
+        right: left + width,
         mode,
       },
     });
@@ -165,19 +127,16 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
       ...phrases.map(({ label, start, mode, duration }) => ({ label, start, mode, duration })),
       {
         label: textSpeech,
-        start: phraseStart,
+        start,
         mode,
-        duration: phraseDuration,
+        duration,
       },
     ];
     sendReplaceAudioRequest(phrasesForRequest);
   };
 
   const deleteSelection = (deletedIndex: number) => {
-    dispatch({
-      type: 'phrase/delete',
-      payload: deletedIndex,
-    });
+    dispatch({ type: 'phrase/delete', payload: deletedIndex });
 
     // replace audio and reload video
     const phrasesForRequest = phrases
@@ -190,12 +149,8 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
     if (!textSpeech) {
       return;
     }
-    const phraseDurationInfo = getPhraseDurationBasedOnSelection(
-      selectionLayerRef,
-      selectionRef,
-      meme
-    );
-    testSpeechRequest(textSpeech, mode, phraseDurationInfo.phraseDuration, (link) => {
+    const metrics = getMetricBasedOnSelection(selectionLayerRef, selectionRef, meme);
+    testSpeechRequest(textSpeech, mode, metrics.duration, (link) => {
       setPhraseLink(link);
       const audio = new Audio(getUrl(link));
       audio.play();
@@ -204,11 +159,11 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
 
   useInputFocus(inputRef, showControls);
 
-  useSelectionLayerMetric(imgRef, selectionLayerRef);
+  useSelectionLayerMetric(baseImageLayerRef, selectionLayerRef);
 
   return (
     <div className="waveform" onClick={cancelEvent}>
-      <img ref={imgRef} src={meme.waveform} alt="Waveform" />
+      <img ref={baseImageLayerRef} src={meme.waveform} alt="Waveform" />
       <div
         ref={selectionLayerRef}
         className="waveform-selection-layer"
@@ -222,6 +177,7 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
             width={width}
             onDelete={() => deleteSelection(index)}
             isSaved
+            showClose
           >
             <Typography mode="secondary" weight="bold" singleLine>
               {label}
@@ -229,8 +185,8 @@ export const Waveform: FC<WaveformProps> = ({ meme }) => {
           </Selection>
         );
       })}
-      <Selection ref={selectionRef} onDelete={clearSelection}>
-        <Drop show={showControls} activator={selectionRef} style={{ minWidth: 150 }}>
+      <Selection ref={selectionRef} onDelete={clearSelection} showClose={showControls}>
+        <Drop activator={selectionRef} style={{ minWidth: 150 }} show={showControls}>
           <div className="waveform-phrase">
             <Input
               ref={inputRef}
