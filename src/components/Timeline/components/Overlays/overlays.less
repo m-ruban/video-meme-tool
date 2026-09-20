@@ -1,0 +1,30 @@
+.overlay-wrapper {
+    margin-top: 10px;
+    position: relative;
+    user-select: none;
+    height: 48px;
+}
+
+.overlay {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    left: 0;
+    top: 0;
+    height: 100%;
+    cursor: crosshair;
+    pointer-events: auto;
+    z-index: 1;
+    border: 1px dashed #738697;
+    border-radius: 10px;
+}
+
+.overlay-tip {
+    user-select: none;
+}
+
+.overlay-preview {
+   max-width: 40px;
+}
