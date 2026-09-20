@@ -13,14 +13,13 @@
 .timeline {
     position: relative;
     background-color: #2E343A;
-    padding: @padding;
+    padding: 8px 10px;
     border-radius: 20px;
     min-height: 175px;
+    display: flex;
 
-    --shadow-left: 0;
     --shadow-right: 0;
 
-    &::before,
     &::after {
         content: '';
         position: absolute;
@@ -31,15 +30,6 @@
         transition: opacity 0.3s;
         height: calc(100% - @padding * 2);
         z-index: 1;
-    }
-
-    &::before {
-        left: @padding;
-        background: linear-gradient(to right, #2E343A, transparent);
-        opacity: var(--shadow-left);
-    }
-    
-    &::after {
         right: @padding;
         background: linear-gradient(to left, #2E343A, transparent);
         opacity: var(--shadow-right);
@@ -49,23 +39,40 @@
 }
 
 .timeline-scrollable {
-    padding: @padding;
+    padding: 8px 0px;
+    padding-left: 10px;
     position: relative;
     overflow-x: auto;
 }
 
-.timeline-advice-wripper {
+.toolbar {
+    padding-top: 10px;
     display: flex;
-    justify-content: center;
-    margin-top: 10px;
+    flex-direction: column;
+    margin-right: 5px;
 }
 
-.timeline-advice {
-    padding: 10px;
-    background-color: #2E343A;
-    border-radius: 10px;
-    min-height: 17px;
-    min-width: 500px;
+.toolbar-ruler-icon {
+    height: 30px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+}
 
-    .blink(#2E343A; #2e343aa9; transparent);
+.toolbar-waveform-icon {
+    height: 50px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.toolbar-overlay-icon {
+    height: 50px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.toolbar-slide-show-icon {
+    padding-top: 13px;
 }
