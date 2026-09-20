@@ -7,27 +7,27 @@ interface PlayheadProps {
   rulerRef: RefObject<HTMLDivElement | null>;
 }
 
-const PADDING = 10;
-const PLAYHEAD_WIDTH = 2;
+const TIMELINE_PADDING = 10;
+const PLAYHEAD_OFFSET = 1; // 2 playhead width
 
 const calcLeft = (rulerRef: RefObject<HTMLDivElement | null>, playedPercent: number) => {
   if (!rulerRef.current) {
-    return PADDING;
+    return TIMELINE_PADDING;
   }
-  const rulerWidth = rulerRef.current.scrollWidth;
-  return Math.max(PADDING, rulerWidth * (playedPercent / 100) + PLAYHEAD_WIDTH);
+
+  return TIMELINE_PADDING + rulerRef.current.scrollWidth * (playedPercent / 100) - PLAYHEAD_OFFSET;
 };
 
 const Playhead: FC<PlayheadProps> = ({ rulerRef }) => {
-  const playedPercent = useAppStore((store) => store.state.playedPercent);
+  const played = useAppStore((store) => store.state.played);
   const playheadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!playheadRef.current || !rulerRef.current) {
       return;
     }
-    playheadRef.current.style.left = `${calcLeft(rulerRef, playedPercent)}px`;
-  }, [playedPercent, rulerRef]);
+    playheadRef.current.style.left = `${calcLeft(rulerRef, played.percent)}px`;
+  }, [played, rulerRef]);
 
   return <div ref={playheadRef} className="playhead" />;
 };
