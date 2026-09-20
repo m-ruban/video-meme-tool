@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { useAppStore } from 'src/store';
 
+export interface ApiError {
+  statusCode: number;
+  message: string | string[];
+  error: string;
+}
+
 const fetcher = axios.create();
 
 fetcher.interceptors.request.use((config) => {
