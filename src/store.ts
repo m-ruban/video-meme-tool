@@ -20,7 +20,9 @@ export interface Meme {
   ext: string;
   /** full file name */
   name: string;
-  /** full link to file */
+  /** full link to original file */
+  originalLink?: string;
+  /** full link to file (processed) */
   link: string;
   /** in sec */
   duration: number;
@@ -32,9 +34,12 @@ export interface Meme {
   waveform: string;
   /** array of links to frames */
   frames: string[];
+  width: number;
+  height: number;
 }
 export type NullableMeme = Meme | null;
-export type ParticallMeme = Pick<Meme, 'link' | 'duration' | 'ext' | 'name'>;
+export type ParticallMeme = Pick<Meme, 'link' | 'duration' | 'ext' | 'name'> &
+  Partial<Pick<Meme, 'audio'>>;
 type MemeSetAction = { type: 'meme/set'; payload: Meme };
 type MemeUpdateAction = { type: 'meme/update'; payload: ParticallMeme };
 
@@ -44,8 +49,8 @@ type StepAction = { type: 'step/set'; payload: StepState };
 type VideoLoaded = boolean;
 type VideoLoadedAction = { type: 'meme-loaded/set'; payload: boolean };
 
-type PlayedPercent = number;
-type PlayedPercentAction = { type: 'played-percent/set'; payload: number };
+type Played = { percent: number; seconds: number };
+type PlayedAction = { type: 'played/set'; payload: Played };
 
 type PlayerInstance = ReactPlayer | null;
 type PlayerInstanceAction = { type: 'player-instance/set'; payload: PlayerInstance };
@@ -65,14 +70,35 @@ export type ParticallPhrase = Pick<Phrase, 'start' | 'label' | 'mode' | 'duratio
 type PhraseAddAction = { type: 'phrase/add'; payload: Phrase };
 type PhraseDeleteAction = { type: 'phrase/delete'; payload: number };
 
+export interface Overlay {
+  inputImage: string;
+  start: number;
+  end: number;
+  left: number;
+  width: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+type OverlayAddAction = { type: 'overlay/add'; payload: Overlay };
+type OverlayDeleteAction = { type: 'overlay/delete'; payload: number };
+
+type PreviewAddAction = { type: 'preview/add'; payload: Overlay };
+type PreviewDeleteAction = { type: 'preview/delete' };
+type PreviewSaveAction = { type: 'preview/save'; payload: boolean };
+
 type AppState = {
   token: TokenState;
   meme: NullableMeme;
   step: StepState;
   videoLoaded: VideoLoaded;
-  playedPercent: PlayedPercent;
+  played: Played;
   playerInstance: PlayerInstance;
   phrases: Phrase[];
+  overlays: Overlay[];
+  preview: Overlay | null;
+  previewSaved: boolean;
 };
 
 type AppAction =
@@ -81,10 +107,15 @@ type AppAction =
   | MemeUpdateAction
   | StepAction
   | VideoLoadedAction
-  | PlayedPercentAction
+  | PlayedAction
   | PlayerInstanceAction
   | PhraseAddAction
-  | PhraseDeleteAction;
+  | PhraseDeleteAction
+  | OverlayAddAction
+  | OverlayDeleteAction
+  | PreviewAddAction
+  | PreviewDeleteAction
+  | PreviewSaveAction;
 
 interface Store {
   state: AppState;
@@ -130,9 +161,9 @@ const videoLoadedReducer = (state: VideoLoaded, action: AppAction): VideoLoaded 
   }
 };
 
-const playedPercentReducer = (state: PlayedPercent, action: AppAction): PlayedPercent => {
+const playedReducer = (state: Played, action: AppAction): Played => {
   switch (action.type) {
-    case 'played-percent/set':
+    case 'played/set':
       return action.payload;
     default:
       return state;
@@ -159,15 +190,49 @@ const phraseReducer = (state: Phrase[], action: AppAction): Phrase[] => {
   }
 };
 
+const overlayReducer = (state: Overlay[], action: AppAction): Overlay[] => {
+  switch (action.type) {
+    case 'overlay/add':
+      return [...state, action.payload];
+    case 'overlay/delete':
+      return state.filter((_, index) => index !== action.payload);
+    default:
+      return state;
+  }
+};
+
+const previewReducer = (state: Overlay | null, action: AppAction): Overlay | null => {
+  switch (action.type) {
+    case 'preview/add':
+      return action.payload;
+    case 'preview/delete':
+      return null;
+    default:
+      return state;
+  }
+};
+
+const previewSaveReducer = (state: boolean, action: AppAction): boolean => {
+  switch (action.type) {
+    case 'preview/save':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 export const useAppStore = create<Store>((set) => ({
   state: {
     token: '',
     meme: null, // meme
     step: 'load-file', // edit-file | load-file
     videoLoaded: false,
-    playedPercent: 0,
+    played: { percent: 0, seconds: 0 },
     playerInstance: null,
     phrases: [],
+    overlays: [],
+    preview: null,
+    previewSaved: false,
   },
   dispatch: (action) =>
     set((store) => ({
@@ -176,9 +241,12 @@ export const useAppStore = create<Store>((set) => ({
         meme: memeReducer(store.state.meme, action),
         step: stepReducer(store.state.step, action),
         videoLoaded: videoLoadedReducer(store.state.videoLoaded, action),
-        playedPercent: playedPercentReducer(store.state.playedPercent, action),
+        played: playedReducer(store.state.played, action),
         playerInstance: playerInstanceReducer(store.state.playerInstance, action),
         phrases: phraseReducer(store.state.phrases, action),
+        overlays: overlayReducer(store.state.overlays, action),
+        preview: previewReducer(store.state.preview, action),
+        previewSaved: previewSaveReducer(store.state.previewSaved, action),
       },
     })),
 }));
