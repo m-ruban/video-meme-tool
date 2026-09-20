@@ -7,12 +7,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   children?: ReactNode;
   icon?: ReactNode;
+  stretched?: boolean;
+  classname?: string;
 }
 
-const Button: FC<ButtonProps> = ({ onClick, children, icon, ...props }) => {
+const Button: FC<ButtonProps> = ({ onClick, children, icon, stretched, classname, ...props }) => {
   return (
     <button
-      className={classnames('button', { ['button_with-icon']: icon })}
+      className={classnames('button', { ['button_with-icon']: icon, stretched }, classname)}
       onClick={onClick}
       {...props}
     >
