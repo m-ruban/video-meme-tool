@@ -1,0 +1,38 @@
+.preview-container {
+    position: absolute;
+    cursor: move;
+    box-sizing: border-box;
+    border: 2px dashed #fff;
+    user-select: none;
+    border-radius: 10px;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+    border-radius: 8px;
+}
+
+.preview-action {
+    position: absolute;
+    background: #fff;
+    box-sizing: border-box;
+    border-radius: 2px;
+    display: flex;
+    cursor: pointer;
+    right: -6px;
+}
+
+.preview-action-close {
+    top: -6px;
+    padding: 1px;
+}
+
+.preview-action-save {
+    bottom: -6px;
+    padding: 1px;
+}
