@@ -10,7 +10,7 @@ const SaveButton: FC = () => {
   const meme = useAppStore((store) => store.state.meme);
   const requestSaveMemeRequest = useSaveMeme();
   const handleClickSaveMeme = () => {
-    requestSaveMemeRequest(meme?.link || '', (link) => {
+    requestSaveMemeRequest(meme?.link || '', meme?.originalLink || '', (link) => {
       window.location.href = link;
     });
   };
