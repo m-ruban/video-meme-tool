@@ -1,4 +1,4 @@
-import { forwardRef, type FC, type MouseEventHandler } from 'react';
+import { forwardRef, type MouseEventHandler } from 'react';
 
 interface MoreProps {
   onClick?: MouseEventHandler<SVGSVGElement>;
