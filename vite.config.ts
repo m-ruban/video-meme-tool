@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -14,6 +13,20 @@ export default defineConfig({
       src: path.resolve(__dirname, './src'),
     },
   },
+
+  build: {
+    sourcemap: false,
+    minify: 'esbuild',
+
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
+
   server: {
     proxy: {
       '/api': {
