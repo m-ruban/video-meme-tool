@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 deploy.sh
+commands.sh
 
 # Editor directories and files
 .vscode/*
