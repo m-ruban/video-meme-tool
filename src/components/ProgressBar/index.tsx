@@ -1,5 +1,4 @@
 import { useRef, useCallback, MouseEvent, type FC } from 'react';
-import { motion } from 'framer-motion';
 
 import 'src/components/ProgressBar/progress-bar.less';
 
@@ -22,17 +21,14 @@ export const ProgressBar: FC<ProgressBarProps> = ({ value, onChange }) => {
 
     const rect = barRef.current.getBoundingClientRect();
     const newValue = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-    onChangeRef.current?.(newValue);
+
+    onChangeRef.current(newValue);
   }, []);
 
   return (
     <div className="progress-bar" ref={barRef} onClick={handleClick}>
       <div className="progress-fill-wrapper">
-        <motion.div
-          className="progress-fill"
-          animate={{ width: `${value}%` }}
-          transition={{ duration: 0.2 }}
-        />
+        <div className="progress-fill" style={{ width: `${value}%` }} />
       </div>
     </div>
   );
