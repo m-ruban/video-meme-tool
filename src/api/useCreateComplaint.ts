@@ -3,7 +3,7 @@ import { fetcher } from 'src/api/fetcher';
 import { Complaint } from 'src/store';
 
 interface CreateComplaintRequest {
-  (complaint: Complaint,  onComplete: () => void): void;
+  (complaint: Complaint, onComplete: () => void): void;
 }
 
 const useCreateComplaint = (): CreateComplaintRequest => {
